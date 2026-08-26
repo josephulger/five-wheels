@@ -24,7 +24,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=r230752">
+<link rel="modulepreload" href="./bundle.js?v=h234429">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -523,7 +523,7 @@
     <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
   </div>
   <div class="br">
-    <button class="round" id="lamp" data-act="lamp" aria-label="Use a hint, 3 left">💡<i id="lamp-n">3</i></button>
+    <button class="round" id="lamp" data-act="lamp" aria-label="Use your hint">💡<i id="lamp-n">1</i></button>
     <button class="round" id="eye" data-act="eye" aria-label="Crouch down and look">👁</button>
   </div>
   <div id="hintnote" role="status"></div>
@@ -566,7 +566,8 @@
       <li>Hold the mouse button and <span>drag</span> to swing the camera — the car under your cursor lights up.</li>
       <li>Press <span>Space</span> to drop down among the cars, where wheels can actually be counted.</li>
       <li>Click a car, or press <span>Enter</span>, and you pick it up for a look. <span>Click again</span> for the verdict right away — the wrong ones get tossed over your shoulder, and that costs nothing but time. <span>Q</span> puts a car back.</li>
-      <li>Stuck? The <span>💡</span> button (or <span>H</span>) gives you a hint — you get three: the body, the colour, and an arrow pointing from wherever you stand. Free, but the share text tells on you.</li>
+      <li>Stuck? You get <span>one</span> hint: the <span>💡</span> button (or <span>H</span>) shows an arrow pointing toward the car for ten seconds. Free, but the share text tells on you.</li>
+      <li>No do-overs: refreshing the page brings back the same planet, the same clock and your spent hint. A fresh planet comes when you find the car.</li>
     </ol>
     <div class="stack">
       <button class="mini" data-act="help">Got it</button>
@@ -591,6 +592,6 @@
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=r230752"></script>
+<script type="module" src="./bundle.js?v=h234429"></script>
 </body>
 </html>
