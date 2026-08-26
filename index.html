@@ -214,6 +214,9 @@
 
   @media (pointer: coarse) {
     .bl .keys { display: none; }
+    /* Thumbs are not cursors: every round control grows on touch screens. */
+    .round { width: 56px; height: 56px; line-height: 56px; font-size: 22px; }
+    .br { gap: 12px; }
   }
   @media (pointer: fine) {
     .bl .touch { display: none; }
@@ -227,7 +230,34 @@
   .tl { position: fixed; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); display: flex; gap: 8px; align-items: center; }
   .tc { position: fixed; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); pointer-events: none; }
   .tr { position: fixed; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; }
-  .br { position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); right: max(14px, env(safe-area-inset-right)); }
+  .br {
+    position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); right: max(14px, env(safe-area-inset-right));
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+  }
+  #lamp { position: relative; }
+  #lamp i {
+    position: absolute; top: -5px; right: -5px; width: 20px; height: 20px;
+    border-radius: 999px; background: var(--yellow-a); color: var(--yellow-ink);
+    font-style: normal; font-weight: 800; font-size: 12px; line-height: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  #lamp.spent { opacity: .4; }
+
+  /* The hint toast, and the seeker arrow the third hint turns on: the arrow
+     sits high mid-screen and swivels toward the five-wheeler as you turn. */
+  #hintnote {
+    position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 54px);
+    left: 50%; transform: translateX(-50%); z-index: 16; pointer-events: none;
+    background: rgba(16, 22, 30, .82); color: #fff; padding: 10px 16px;
+    border-radius: 999px; font-size: 14px; font-weight: 800; white-space: nowrap;
+    opacity: 0; transition: opacity .35s ease; max-width: 92vw;
+  }
+  #hintnote.on { opacity: 1; }
+  #seeker {
+    position: fixed; top: 21%; left: 50%; width: 56px; height: 56px;
+    margin-left: -28px; z-index: 14; pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,.35));
+  }
   .bl {
     position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left));
     max-width: 46vw; font-size: 12px; font-weight: 700; color: #fff;
@@ -492,7 +522,16 @@
     <button class="round" data-act="help" aria-label="How to play">?</button>
     <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
   </div>
-  <div class="br"><button class="round" id="eye" data-act="eye" aria-label="Crouch down and look">👁</button></div>
+  <div class="br">
+    <button class="round" id="lamp" data-act="lamp" aria-label="Use a hint, 3 left">💡<i id="lamp-n">3</i></button>
+    <button class="round" id="eye" data-act="eye" aria-label="Crouch down and look">👁</button>
+  </div>
+  <div id="hintnote" role="status"></div>
+  <div id="seeker" hidden>
+    <svg viewBox="0 0 56 56" aria-hidden="true">
+      <path d="M28 4 L44 40 L28 31 L12 40 Z" fill="#f9c92b" stroke="#2c2202" stroke-width="3.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
   <div class="bl" id="hint">
     <span class="keys">
       <b>WASD</b> walks · <b>drag</b> to look around · <b>Shift</b> runs<br>
@@ -527,6 +566,7 @@
       <li>Hold the mouse button and <span>drag</span> to swing the camera — the car under your cursor lights up.</li>
       <li>Press <span>Space</span> to drop down among the cars, where wheels can actually be counted.</li>
       <li>Click a car, or press <span>Enter</span>, and you pick it up for a look. <span>Click again</span> for the verdict right away — the wrong ones get tossed over your shoulder, and that costs nothing but time. <span>Q</span> puts a car back.</li>
+      <li>Stuck? The <span>💡</span> button (or <span>H</span>) gives you a hint — you get three: the body, the colour, and an arrow pointing from wherever you stand. Free, but the share text tells on you.</li>
     </ol>
     <div class="stack">
       <button class="mini" data-act="help">Got it</button>
