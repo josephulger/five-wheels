@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>FIVE WHEELS — 49,000 cars, one has five wheels</title>
+<meta name="description" content="A tiny planet covered in toy cars. Every one has four wheels. One has five. Find it.">
+<meta name="theme-color" content="#93c5e9">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f9c92b'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%232c2202' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%232c2202'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="FIVE WHEELS">
+<meta property="og:description" content="A tiny planet covered in toy cars. Every one has four wheels. One has five. Find it.">
+<meta property="og:image" content="social.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FIVE WHEELS">
+<meta name="twitter:description" content="49,000 cars. One has five wheels. Find it.">
+<meta name="twitter:image" content="social.jpg">
+
+<link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/props/attendant.glb" crossorigin>
+<link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
+<link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
+<link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
+<link rel="modulepreload" href="./bundle.js">
+<style>
+  :root {
+    /* This page is its own art direction. Chrome's forced dark mode was
+       painting the pastel sky navy and inverting the black tyre to white;
+       "only light" is the documented opt-out. */
+    color-scheme: only light;
+    --ink: #1b1e24;
+    --paper: #ffffff;
+    --yellow-a: #f9c92b;
+    --yellow-b: #e8a30c;
+    --yellow-ink: #2c2202;
+    --asphalt-a: #5b626d;
+    --asphalt-b: #3a3f48;
+    --ring: inset 0 0 0 2px rgba(255, 255, 255, 0.88);
+    --drop: 0 5px 0 rgba(23, 26, 31, 0.26), 0 10px 22px rgba(18, 22, 28, 0.28);
+    --drop-sm: 0 3px 0 rgba(23, 26, 31, 0.22), 0 6px 14px rgba(18, 22, 28, 0.22);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: #93c5e9; color: var(--ink);
+    font: 700 15px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-user-select: none; user-select: none; touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #scene { display: block; width: 100%; height: 100%; cursor: grab; outline: none; }
+
+  /* Visually hidden, still read out: the live region the screen reader hears. */
+  .sr {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  /* ---------- the button system ---------- */
+
+  .pill {
+    display: block; width: min(380px, 86vw); height: 65px; border: 0; border-radius: 22px;
+    padding: 0 22px; text-align: left; cursor: pointer; color: var(--yellow-ink);
+    background: linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
+    box-shadow: var(--ring), var(--drop);
+    font: inherit; transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .pill.grey {
+    color: #fff; background: linear-gradient(180deg, var(--asphalt-a), var(--asphalt-b));
+  }
+  .pill:hover { transform: translateY(-2px) scale(1.015); }
+  .pill:active {
+    transform: translateY(3px);
+    box-shadow: var(--ring), 0 2px 0 rgba(23, 26, 31, 0.26), 0 4px 10px rgba(18, 22, 28, 0.25);
+  }
+  .pill b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .pill span { display: block; font-size: 12.5px; font-weight: 700; opacity: .72; margin-top: 2px; }
+
+  /* The start button IS the elevator pitch: a wheel, a road, a toy car
+     driving across it. Nobody has to read to know what kind of game this is. */
+  .pill.start { position: relative; height: 76px; padding: 6px 22px 17px 76px; overflow: hidden; }
+  .pill.start .wheelico {
+    position: absolute; left: 15px; top: 8px; width: 46px; height: 46px;
+  }
+  .pill.start .wheelico svg { width: 100%; height: 100%; animation: turn 6s linear infinite; }
+  .pill.start:hover .wheelico svg { animation-duration: 1s; }
+  .pill.start .road {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 13px;
+    background: #363c46; font-style: normal;
+  }
+  .pill.start .road::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 2.5px;
+    background: repeating-linear-gradient(90deg, #f4f6f8 0 11px, transparent 11px 24px);
+    opacity: .8;
+  }
+  .pill.start .zoomcar {
+    position: absolute; bottom: 2px; left: -30px; width: 22px; height: 8px;
+    background: #e5443d; border-radius: 4px 6px 1px 1px; font-style: normal;
+    animation: drive 4.6s linear infinite;
+  }
+  .pill.start .zoomcar::before {
+    content: ""; position: absolute; top: -4px; left: 5px; width: 11px; height: 5px;
+    background: #e5443d; border-radius: 3px 4px 0 0;
+  }
+  .pill.start .zoomcar::after {
+    content: ""; position: absolute; bottom: -2px; left: 3px; width: 4.5px; height: 4.5px;
+    border-radius: 999px; background: #16181c; box-shadow: 11px 0 0 #16181c;
+  }
+  @keyframes drive { to { transform: translateX(470px); } }
+
+  .mini {
+    min-width: 120px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82); color: var(--ink); cursor: pointer;
+    font: 800 14px/1 ui-sans-serif, system-ui, sans-serif;
+    box-shadow: var(--ring), var(--drop-sm);
+    transition: transform .12s ease;
+  }
+  .mini:hover { transform: translateY(-1px) scale(1.03); }
+  .mini:active { transform: translateY(2px); }
+
+  /* The glass pass: the floating controls pick up a blur of the world behind
+     them instead of sitting on the screen like stickers. */
+  .round {
+    width: 46px; height: 46px; border: 0; border-radius: 999px; cursor: pointer;
+    background: rgba(255, 255, 255, 0.74); color: var(--ink);
+    backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+    font-size: 19px; line-height: 46px; text-align: center; padding: 0;
+    box-shadow: var(--ring), var(--drop-sm);
+    transition: transform .12s ease;
+  }
+  .round:hover { transform: translateY(-1px) scale(1.05); }
+  .round:active { transform: translateY(2px); }
+  .round.off { opacity: .62; }
+
+  .chip {
+    height: 46px; padding: 0 18px; border-radius: 999px; display: inline-flex;
+    align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.74);
+    backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+    color: var(--ink); font: 800 15px/1 ui-sans-serif, system-ui, sans-serif;
+    box-shadow: var(--ring), var(--drop-sm);
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(249, 201, 43, .95); outline-offset: 2px;
+  }
+  .chip.wide { font-variant-numeric: tabular-nums; letter-spacing: .01em; gap: 7px; }
+  .chip.wide i { font-style: normal; opacity: .34; }
+  .chip.wide span + span { opacity: .62; }
+
+  /* ---------- menu ---------- */
+
+  /* No scrim: the title sits against sky, and a dark blob behind it reads as a
+     smudge on the lens. Weight and an outline do the work instead. */
+  #menu {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    gap: 14px; text-align: center;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+             max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;
+    animation: rise .5s ease both;
+  }
+  #menu > :first-child { margin-top: auto; }
+  #menu > :last-child { margin-bottom: auto; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+  #wheelmark {
+    width: 58px; height: 58px;
+    animation: rollby 3.6s ease-in-out infinite;
+  }
+  #wheelmark svg { width: 100%; height: 100%; animation: turn 7s linear infinite; }
+  @keyframes rollby {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+  #menu h1 {
+    margin: 2px 0 0; font-size: clamp(52px, 13vw, 92px); font-weight: 900;
+    line-height: .84; letter-spacing: -0.035em; color: #fff;
+    -webkit-text-stroke: 5px rgba(20, 28, 38, .62);
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 rgba(24, 33, 44, .34), 0 14px 28px rgba(20, 28, 38, .5);
+    transform: rotate(-1.5deg);
+  }
+  #menu h1 .gold {
+    color: var(--yellow-a);
+    -webkit-text-stroke: 5px rgba(58, 42, 2, .55);
+  }
+  #menu p.tag {
+    margin: 12px 0 6px; max-width: 26ch; font-size: 15.5px; font-weight: 700;
+    color: #24333f;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+  }
+  #menu p.tag em {
+    font-style: normal; color: #4a3a04; background: rgba(249, 201, 43, .92);
+    padding: 1px 7px; border-radius: 7px;
+  }
+  .row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 4px; }
+  #streak {
+    margin: 8px 0 0; font-size: 13px; font-weight: 800; color: #17242d;
+    background: rgba(255, 255, 255, .78); padding: 4px 12px; border-radius: 999px;
+  }
+  #menu p.tag {
+    background: rgba(255, 255, 255, .72); padding: 6px 14px; border-radius: 14px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #menu, .card, .veil, #wheelmark, #win .card, #boot .rollwheel, #boot .rollwheel svg,
+    #boot .cloud, #wheelmark svg, .pill.start .wheelico svg, .pill.start .zoomcar { animation: none !important; }
+    .pill, .mini, .round { transition: none !important; }
+    .bl { transition: none !important; }
+  }
+
+  @media (pointer: coarse) {
+    .bl .keys { display: none; }
+  }
+  @media (pointer: fine) {
+    .bl .touch { display: none; }
+  }
+
+  /* ---------- hud ---------- */
+
+  #hud { position: fixed; inset: 0; z-index: 15; pointer-events: none; }
+  #hud > * { pointer-events: auto; }
+  #hud > .tc, #hud > .bl { pointer-events: none; }
+  .tl { position: fixed; top: max(14px, env(safe-area-inset-top)); left: max(14px, env(safe-area-inset-left)); display: flex; gap: 8px; align-items: center; }
+  .tc { position: fixed; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); pointer-events: none; }
+  .tr { position: fixed; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; }
+  .br { position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); right: max(14px, env(safe-area-inset-right)); }
+  .bl {
+    position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left));
+    max-width: 46vw; font-size: 12px; font-weight: 700; color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.55); line-height: 1.5;
+    transition: opacity .8s ease; opacity: .9; pointer-events: none;
+  }
+  .bl.gone { opacity: 0; }
+  #eye { width: 56px; height: 56px; font-size: 23px; line-height: 56px; }
+
+  /* ---------- cards ---------- */
+
+  .veil {
+    position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-start;
+    justify-content: center; background: rgba(14, 22, 30, 0.46);
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+             max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;
+    backdrop-filter: blur(3px);
+    animation: veilin .22s ease both;
+  }
+  @keyframes veilin { from { opacity: 0; } }
+  .veil > .card { margin: auto; }
+  .card {
+    width: min(430px, 92vw); background: var(--paper); border-radius: 26px;
+    padding: 26px 24px 22px; text-align: center;
+    box-shadow: 0 24px 60px rgba(10, 16, 24, .42), inset 0 0 0 2px rgba(255,255,255,.9);
+    animation: pop .34s cubic-bezier(.2,1.3,.4,1) both;
+  }
+  @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(12px); } }
+  .card h2 { margin: 0 0 4px; font-size: 27px; font-weight: 900; letter-spacing: -0.02em; }
+  .card .sub { margin: 0 0 18px; font-size: 13.5px; font-weight: 700; opacity: .62; }
+  .score {
+    display: flex; gap: 10px; margin: 0 0 18px;
+  }
+  .score div {
+    flex: 1; background: #f1f3f5; border-radius: 16px; padding: 12px 6px;
+  }
+  .score b { display: block; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .score span { display: block; font-size: 11px; font-weight: 700; opacity: .55; margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .card .pill { width: min(380px, 100%); }
+  .card .stack { display: flex; flex-direction: column; gap: 9px; align-items: center; }
+  .card ol { margin: 0 0 18px; padding-left: 20px; text-align: left; font-weight: 700; font-size: 14px; line-height: 1.75; }
+  .card ol span { font-weight: 800; background: #f6e2a0; padding: 0 5px; border-radius: 5px; }
+  #brief-img {
+    display: block; width: 100%; height: auto; border-radius: 16px;
+    margin: 0 0 18px; background: #eef1f4;
+    box-shadow: inset 0 0 0 2px rgba(20, 26, 34, .08), 0 6px 18px rgba(20, 26, 34, .14);
+    transform: rotate(-1deg);
+  }
+  #brief .card { width: min(520px, 94vw); }
+
+  /* The scoreboard's moment: the card lands with the confetti and quietly
+     glows while it holds the result. */
+  #win .card {
+    animation: pop .34s cubic-bezier(.2,1.3,.4,1) both,
+               crown 2.6s ease-in-out .4s infinite;
+  }
+  @keyframes crown {
+    0%, 100% { box-shadow: 0 24px 60px rgba(10, 16, 24, .42), inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 0 rgba(249, 201, 43, 0); }
+    50% { box-shadow: 0 24px 60px rgba(10, 16, 24, .42), inset 0 0 0 2px rgba(255,255,255,.9), 0 0 34px 6px rgba(249, 201, 43, .38); }
+  }
+
+  /* ---------- boot ---------- */
+
+  /* The loading screen is the shop window: pastel sky, sun, clouds, the green
+     curve of the planet with a row of toy cars parked on it — one of them
+     already carrying its fifth wheel — and a tyre rolling back and forth
+     while the real ones are unpacked. */
+  #boot {
+    position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px; overflow: hidden;
+    background: linear-gradient(180deg, #64a3dc 0%, #a9d2ee 48%, #dceef8 74%);
+  }
+  #boot .sun {
+    position: absolute; top: 7%; left: 9%; width: 92px; height: 92px; border-radius: 999px;
+    background: radial-gradient(circle, #fffdf2 0%, #ffe9a8 42%, rgba(255, 233, 168, 0) 72%);
+  }
+  #boot .cloud {
+    position: absolute; height: 26px; border-radius: 999px; background: rgba(255,255,255,.92);
+  }
+  #boot .cloud::before {
+    content: ""; position: absolute; left: 22%; top: -13px; width: 44%; height: 26px;
+    border-radius: 999px; background: inherit;
+  }
+  #boot .c1 { width: 130px; top: 15%; left: 22%; animation: cloudby 26s linear infinite; }
+  #boot .c2 { width: 88px; top: 24%; right: 13%; animation: cloudby 34s linear infinite reverse; }
+  #boot .c3 { width: 64px; top: 9%; right: 34%; opacity: .8; animation: cloudby 40s linear infinite; }
+  @keyframes cloudby { 50% { transform: translateX(46px); } }
+  #boot .hill {
+    position: absolute; left: 50%; bottom: -132vh; width: 210vw; height: 160vh;
+    transform: translateX(-50%); border-radius: 50%;
+    background: linear-gradient(180deg, #78b558, #6fac4f 30%);
+    box-shadow: 0 -10px 40px rgba(60, 110, 45, .25);
+  }
+  /* Toy skyline parked on the planet's crest. */
+  #boot .lot {
+    position: absolute; bottom: calc(28vh + 6px); left: 0; right: 0;
+    display: flex; justify-content: center; align-items: flex-end; gap: 34px;
+  }
+  .bcar { position: relative; width: 46px; height: 15px; border-radius: 4px 7px 2px 2px; background: var(--c, #e5443d); }
+  .bcar::before {
+    content: ""; position: absolute; top: -8px; left: 9px; width: 22px; height: 9px;
+    border-radius: 4px 5px 0 0; background: inherit;
+  }
+  .bcar::after {
+    content: ""; position: absolute; bottom: -4px; left: 6px; width: 9px; height: 9px;
+    border-radius: 999px; background: #1a1d21; box-shadow: 24px 0 0 #1a1d21;
+  }
+  /* The one every player is here for: a fifth wheel riding on the roof. */
+  .bcar.five::after { box-shadow: 24px 0 0 #1a1d21, 11px -17px 0 #1a1d21; }
+  .bpine { position: relative; width: 0; height: 0; margin-bottom: -2px;
+    border-left: 14px solid transparent; border-right: 14px solid transparent;
+    border-bottom: 38px solid #2e8a55;
+  }
+  #boot .logo {
+    position: relative; font-size: 52px; font-weight: 900; letter-spacing: -0.03em;
+    line-height: .88; text-align: center; color: #fff; transform: rotate(-1.5deg);
+    -webkit-text-stroke: 4px rgba(20, 28, 38, .55); paint-order: stroke fill;
+    text-shadow: 0 4px 0 rgba(24, 33, 44, .3), 0 12px 24px rgba(20, 28, 38, .4);
+  }
+  #boot .logo span { display: block; color: var(--yellow-a); -webkit-text-stroke: 4px rgba(58, 42, 2, .5); }
+  /* A tyre rolling back and forth over a dashed line while the planet loads. */
+  #boot .rollzone { position: relative; width: 260px; height: 74px; margin-top: 6px; }
+  #boot .rollroad {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 4px; border-radius: 99px;
+    background: repeating-linear-gradient(90deg, #33506a 0 16px, transparent 16px 28px);
+    opacity: .45;
+  }
+  #boot .rollwheel {
+    position: absolute; bottom: 3px; left: 50%; width: 62px; height: 62px; margin-left: -31px;
+    animation: roll 2.4s ease-in-out infinite alternate;
+  }
+  #boot .rollwheel svg { width: 100%; height: 100%; animation: turn 1.3s linear infinite; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  @keyframes roll { from { transform: translateX(-92px); } to { transform: translateX(92px); } }
+  #boot-note { position: relative; font-size: 14px; font-weight: 800; color: #1e3a4c; }
+
+  @media (max-width: 560px) {
+    .chip { font-size: 14px; padding: 0 15px; }
+  }
+
+  /* Where the thumb landed, so walking on a phone is not guesswork. */
+  #stick {
+    position: fixed; z-index: 16; width: 124px; height: 124px; margin: -62px 0 0 -62px;
+    border-radius: 999px; pointer-events: none; opacity: 0;
+    background: radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,0) 70%);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.42);
+    transition: opacity .18s ease;
+  }
+  #stick.on { opacity: 1; }
+  #stick i {
+    position: absolute; left: 50%; top: 50%; width: 46px; height: 46px;
+    margin: -23px 0 0 -23px; border-radius: 999px;
+    background: rgba(255,255,255,.62); box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  }
+
+  @media (max-height: 640px) {
+    #menu { gap: 8px; }
+    #wheelmark { width: 42px; height: 42px; }
+    #menu h1 { font-size: clamp(40px, 11vw, 60px); }
+    #menu p.tag { margin: 8px 0 2px; font-size: 14px; }
+    .pill { height: 58px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="-1"></canvas>
+
+<div id="sr-status" class="sr" role="status" aria-live="polite"></div>
+
+<div id="boot">
+  <div class="sun"></div>
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="hill"></div>
+  <div class="lot">
+    <i class="bpine"></i>
+    <i class="bcar" style="--c:#2d63b8"></i>
+    <i class="bcar" style="--c:#e5443d"></i>
+    <i class="bcar five" style="--c:#efc019"></i>
+    <i class="bcar" style="--c:#2f8a52"></i>
+    <i class="bcar" style="--c:#e0761f"></i>
+    <i class="bpine"></i>
+  </div>
+  <div class="logo">FIVE <span>WHEELS</span></div>
+  <div class="rollzone">
+    <div class="rollwheel">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="29" style="fill:none;stroke:#101318;stroke-width:3;stroke-dasharray:4 7"/>
+        <circle cx="32" cy="32" r="23" style="fill:none;stroke:#20242a;stroke-width:14"/>
+        <circle cx="32" cy="32" r="16.5" style="fill:#e9edf2"/>
+        <g style="stroke:#20242a;stroke-width:5;stroke-linecap:round">
+          <line x1="32" y1="32" x2="32" y2="17"/>
+          <line x1="32" y1="32" x2="46.3" y2="27.4"/>
+          <line x1="32" y1="32" x2="40.8" y2="44.1"/>
+          <line x1="32" y1="32" x2="23.2" y2="44.1"/>
+          <line x1="32" y1="32" x2="17.7" y2="27.4"/>
+        </g>
+        <circle cx="32" cy="32" r="6.5" style="fill:#20242a"/>
+        <circle cx="32" cy="32" r="2.4" style="fill:#f9c92b"/>
+      </svg>
+    </div>
+    <div class="rollroad"></div>
+  </div>
+  <div id="boot-note">Unpacking the cars…</div>
+</div>
+
+<div id="menu" hidden>
+  <div id="wheelmark">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="29" style="fill:none;stroke:#101318;stroke-width:3;stroke-dasharray:4 7"/>
+      <circle cx="32" cy="32" r="23" style="fill:none;stroke:#20242a;stroke-width:14"/>
+      <circle cx="32" cy="32" r="16.5" style="fill:#e9edf2"/>
+      <g style="stroke:#20242a;stroke-width:5;stroke-linecap:round">
+        <line x1="32" y1="32" x2="32" y2="17"/>
+        <line x1="32" y1="32" x2="46.3" y2="27.4"/>
+        <line x1="32" y1="32" x2="40.8" y2="44.1"/>
+        <line x1="32" y1="32" x2="23.2" y2="44.1"/>
+        <line x1="32" y1="32" x2="17.7" y2="27.4"/>
+      </g>
+      <circle cx="32" cy="32" r="6.5" style="fill:#20242a"/>
+      <circle cx="32" cy="32" r="2.4" style="fill:#f9c92b"/>
+    </svg>
+  </div>
+  <h1>FIVE<br><span class="gold">WHEELS</span></h1>
+  <p class="tag">One car has five wheels.<br>Find it. <em><span id="menu-count">49,000</span> to check.</em></p>
+
+  <button class="pill start" data-act="start">
+    <i class="wheelico" aria-hidden="true">
+      <svg viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="23" style="fill:none;stroke:#20242a;stroke-width:14"/>
+        <circle cx="32" cy="32" r="16.5" style="fill:#fff3cd"/>
+        <g style="stroke:#20242a;stroke-width:5;stroke-linecap:round">
+          <line x1="32" y1="32" x2="32" y2="17"/>
+          <line x1="32" y1="32" x2="46.3" y2="27.4"/>
+          <line x1="32" y1="32" x2="40.8" y2="44.1"/>
+          <line x1="32" y1="32" x2="23.2" y2="44.1"/>
+          <line x1="32" y1="32" x2="17.7" y2="27.4"/>
+        </g>
+        <circle cx="32" cy="32" r="6.5" style="fill:#20242a"/>
+      </svg>
+    </i>
+    <b>Start looking</b>
+    <span>Everyone gets the same planet</span>
+    <i class="road" aria-hidden="true"><i class="zoomcar"></i></i>
+  </button>
+
+  <div class="row">
+    <button class="mini" data-act="help">How to play</button>
+    <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
+  </div>
+  <p id="streak">No car found yet. Go and look.</p>
+</div>
+
+<div id="hud" hidden>
+  <div class="tl">
+    <button class="round" data-act="menu" aria-label="Back to the menu">←</button>
+  </div>
+  <div class="tc"><div class="chip wide"><span id="clock">0:00.0</span><i>·</i><span id="tries">0</span> tried</div></div>
+  <div class="tr">
+    <button class="round" data-act="help" aria-label="How to play">?</button>
+    <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
+  </div>
+  <div class="br"><button class="round" id="eye" data-act="eye" aria-label="Crouch down and look">👁</button></div>
+  <div class="bl" id="hint">
+    <span class="keys">
+      <b>WASD</b> walks · <b>drag</b> to look around · <b>Shift</b> runs<br>
+      <b>Space</b> drops you among the cars. <b>Click a car</b> to pick it up.
+    </span>
+    <span class="touch">
+      Drag the <b>left</b> side to walk · drag the <b>right</b> side to look<br>
+      Push the stick to its rim to run. <b>Tap a car</b> to pick it up.
+    </span>
+  </div>
+</div>
+
+<div id="stick"><i></i></div>
+
+<div class="veil" id="brief" role="dialog" aria-modal="true" aria-label="What you are looking for" hidden>
+  <div class="card">
+    <h2>This is what you're after</h2>
+    <p class="sub">Every car on the planet has four wheels. Exactly one has five.</p>
+    <img id="brief-img" alt="A car with four wheels beside the same car with five">
+    <div class="stack">
+      <button class="pill" data-act="go" style="text-align:center"><b>Got it — let me look</b></button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="help" role="dialog" aria-modal="true" aria-label="How to play" hidden>
+  <div class="card">
+    <h2>How to play</h2>
+    <p class="sub">There is no hint system. That is the game.</p>
+    <ol>
+      <li>Walk with <span>WASD</span>; hold <span>Shift</span> to run. On a phone, drag the left side like a joystick.</li>
+      <li>Hold the mouse button and <span>drag</span> to swing the camera — the car under your cursor lights up.</li>
+      <li>Press <span>Space</span> to drop down among the cars, where wheels can actually be counted.</li>
+      <li>Click a car, or press <span>Enter</span>, and you pick it up for a look. <span>Click again</span> for the verdict right away — the wrong ones get tossed over your shoulder, and that costs nothing but time. <span>Q</span> puts a car back.</li>
+    </ol>
+    <div class="stack">
+      <button class="mini" data-act="help">Got it</button>
+    </div>
+  </div>
+</div>
+
+<div class="veil" id="win" role="dialog" aria-modal="true" aria-label="You found it" hidden>
+  <div class="card">
+    <h2>Five wheels. 🛞</h2>
+    <p class="sub">You found the one car that shouldn't exist.</p>
+    <div class="score">
+      <div><b id="win-time">0:00</b><span>Time</span></div>
+      <div><b id="win-tries">0</b><span>Cars tried</span></div>
+      <div><b id="win-count">49,000</b><span>On the planet</span></div>
+    </div>
+    <div class="stack">
+      <button class="pill" data-act="copy" id="copy" style="text-align:center">Copy result</button>
+      <button class="pill grey" data-act="random"><b>Another planet</b><span>A random one, just for you</span></button>
+      <button class="mini" data-act="menu">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./bundle.js"></script>
+</body>
+</html>
