@@ -28,7 +28,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h195443">
+<link rel="modulepreload" href="./bundle.js?v=h211551">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -54,7 +54,12 @@
     -webkit-user-select: none; user-select: none; touch-action: none;
     -webkit-tap-highlight-color: transparent;
   }
-  #scene { display: block; width: 100%; height: 100%; cursor: default; outline: none; }
+  /* The cover-art pass: one free compositor filter stands in for a colour
+     grade — riper saturation, a whisper more contrast. */
+  #scene {
+    display: block; width: 100%; height: 100%; cursor: default; outline: none;
+    filter: saturate(1.14) contrast(1.035);
+  }
 
   /* Visually hidden, still read out: the live region the screen reader hears. */
   .sr {
@@ -82,37 +87,39 @@
   .pill b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
   .pill span { display: block; font-size: 12.5px; font-weight: 700; opacity: .72; margin-top: 2px; }
 
-  /* The start button IS the elevator pitch: a wheel, a road, a toy car
-     driving across it. Nobody has to read to know what kind of game this is. */
-  .pill.start { position: relative; height: 76px; padding: 6px 22px 17px 76px; overflow: hidden; }
+  /* One button language for every primary action: a road runs along the
+     bottom, its dashes actually flow, and the toy car crossing it is the
+     five-wheeler itself — spare on the roof, wheels spinning. */
+  .pill.drive { position: relative; overflow: hidden; padding-bottom: 14px; }
+  .pill.drive .road {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 13px;
+    background: #363c46; font-style: normal;
+  }
+  .pill.drive .road::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 2.5px;
+    background: repeating-linear-gradient(90deg, #f4f6f8 0 11px, transparent 11px 24px);
+    opacity: .8; animation: dashflow 1.7s linear infinite;
+  }
+  .pill.drive:hover .road::before { animation-duration: .45s; }
+  @keyframes dashflow { to { background-position: -24px 0; } }
+  .pill.grey .road { background: #23272e; }
+  .pill.grey .road::before {
+    background: repeating-linear-gradient(90deg, var(--yellow-a) 0 11px, transparent 11px 24px);
+  }
+  .pill.drive .zoomcar {
+    position: absolute; bottom: 1px; left: -46px; width: 38px; height: 18px;
+    font-style: normal;
+    background: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 22"%3E%3Cstyle%3E.w{animation:s .5s linear infinite;transform-origin:center;transform-box:fill-box}@keyframes s{to{transform:rotate(1turn)}}%3C/style%3E%3Cpath d="M3 14Q3 9 8 9L13 9Q15 4 21 4L27 4Q32 4 34 9L39 9Q43 9 43 14L43 16Q43 17 42 17L4 17Q3 17 3 16Z" fill="%23e5443d"/%3E%3Cpath d="M16 9Q17 5.5 21 5.5L26 5.5Q29.5 5.5 31.5 9Z" fill="%23d6ecf9"/%3E%3Cg class="w"%3E%3Ccircle cx="12" cy="16" r="4.2" fill="%2322262c"/%3E%3Ccircle cx="12" cy="16" r="1.7" fill="%23e9edf2"/%3E%3Crect x="11.55" y="12.2" width=".9" height="7.6" fill="%23e9edf2"/%3E%3C/g%3E%3Cg class="w"%3E%3Ccircle cx="33" cy="16" r="4.2" fill="%2322262c"/%3E%3Ccircle cx="33" cy="16" r="1.7" fill="%23e9edf2"/%3E%3Crect x="32.55" y="12.2" width=".9" height="7.6" fill="%23e9edf2"/%3E%3C/g%3E%3Cg class="w"%3E%3Ccircle cx="23.5" cy="2.9" r="3.1" fill="%2322262c"/%3E%3Ccircle cx="23.5" cy="2.9" r="1.3" fill="%23e9edf2"/%3E%3Crect x="23.15" y=".1" width=".7" height="5.6" fill="%23e9edf2"/%3E%3C/g%3E%3C/svg%3E') no-repeat center / contain;
+    animation: drive 5.2s linear infinite;
+  }
+  .pill.drive:hover .zoomcar { animation-duration: 1.6s; }
+  .pill.start { height: 76px; padding: 6px 22px 17px 76px; }
   .pill.start .wheelico {
     position: absolute; left: 15px; top: 8px; width: 46px; height: 46px;
   }
   .pill.start .wheelico svg { width: 100%; height: 100%; animation: turn 6s linear infinite; }
   .pill.start:hover .wheelico svg { animation-duration: 1s; }
-  .pill.start .road {
-    position: absolute; left: 0; right: 0; bottom: 0; height: 13px;
-    background: #363c46; font-style: normal;
-  }
-  .pill.start .road::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 2.5px;
-    background: repeating-linear-gradient(90deg, #f4f6f8 0 11px, transparent 11px 24px);
-    opacity: .8;
-  }
-  .pill.start .zoomcar {
-    position: absolute; bottom: 2px; left: -30px; width: 22px; height: 8px;
-    background: #e5443d; border-radius: 4px 6px 1px 1px; font-style: normal;
-    animation: drive 4.6s linear infinite;
-  }
-  .pill.start .zoomcar::before {
-    content: ""; position: absolute; top: -4px; left: 5px; width: 11px; height: 5px;
-    background: #e5443d; border-radius: 3px 4px 0 0;
-  }
-  .pill.start .zoomcar::after {
-    content: ""; position: absolute; bottom: -2px; left: 3px; width: 4.5px; height: 4.5px;
-    border-radius: 999px; background: #16181c; box-shadow: 11px 0 0 #16181c;
-  }
-  @keyframes drive { to { transform: translateX(470px); } }
+  @keyframes drive { to { transform: translateX(560px); } }
 
   .mini {
     min-width: 120px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px;
@@ -169,12 +176,26 @@
   #menu > :first-child { margin-top: auto; }
   #menu > :last-child { margin-bottom: auto; }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  /* Entrance choreography: the wheel rolls in, the title lands with a pop,
+     everything below follows a beat later. Backwards-fill keeps children
+     invisible until their own cue. */
+  #menu > * { animation: rise .5s ease backwards; }
+  #menu > :nth-child(3) { animation-delay: .28s; }
+  #menu > :nth-child(4) { animation-delay: .36s; }
+  #menu > :nth-child(5) { animation-delay: .44s; }
+  #menu > :nth-child(6) { animation-delay: .52s; }
 
   #wheelmark {
     width: 58px; height: 58px;
-    animation: rollby 3.6s ease-in-out infinite;
+    animation: rollin .9s cubic-bezier(.22, .8, .3, 1.04) both,
+               rollby 3.6s ease-in-out 1.1s infinite;
   }
   #wheelmark svg { width: 100%; height: 100%; animation: turn 7s linear infinite; }
+  @keyframes rollin {
+    from { transform: translateX(-44vw) rotate(-1.25turn); opacity: 0; }
+    30% { opacity: 1; }
+    to { transform: translateX(0) rotate(0); }
+  }
   @keyframes rollby {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-7px); }
@@ -186,10 +207,30 @@
     paint-order: stroke fill;
     text-shadow: 0 5px 0 rgba(24, 33, 44, .34), 0 14px 28px rgba(20, 28, 38, .5);
     transform: rotate(-1.5deg);
+    animation: titlepop .65s cubic-bezier(.34, 1.5, .64, 1) .12s backwards;
+  }
+  @keyframes titlepop {
+    from { opacity: 0; transform: rotate(-1.5deg) scale(.74) translateY(20px); }
   }
   #menu h1 .gold {
     color: var(--yellow-a);
     -webkit-text-stroke: 5px rgba(58, 42, 2, .55);
+    background: linear-gradient(105deg,
+      var(--yellow-a) 40%, #fff3c4 50%, var(--yellow-a) 60%);
+    background-size: 260% 100%; background-position: 130% 0;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: gleam 5s ease-in-out 1.4s infinite;
+  }
+  @keyframes gleam {
+    0%, 52% { background-position: 130% 0; }
+    72%, 100% { background-position: -30% 0; }
+  }
+  /* A breath of vignette pulls the eye centre-frame, poster-style. Sits under
+     every card and control; purely decorative. */
+  #vig {
+    position: fixed; inset: 0; z-index: 4; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 42%,
+      rgba(0, 0, 0, 0) 56%, rgba(26, 38, 54, .17) 100%);
   }
   #menu p.tag {
     margin: 12px 0 6px; max-width: 26ch; font-size: 15.5px; font-weight: 700;
@@ -210,8 +251,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #menu, .card, .veil, #wheelmark, #win .card, #boot .rollwheel, #boot .rollwheel svg,
-    #boot .cloud, #wheelmark svg, .pill.start .wheelico svg, .pill.start .zoomcar { animation: none !important; }
+    #menu, #menu > *, #menu h1, .card, .veil, #wheelmark, #win .card, #boot .rollwheel,
+    #boot .rollwheel svg, #boot .cloud, #wheelmark svg, .pill.start .wheelico svg,
+    .pill.drive .zoomcar, .pill.drive .road::before { animation: none !important; }
     .pill, .mini, .round { transition: none !important; }
     .bl { transition: none !important; }
   }
@@ -257,6 +299,23 @@
     opacity: 0; transition: opacity .35s ease; max-width: 92vw;
   }
   #hintnote.on { opacity: 1; }
+
+  /* The celebration band: gold, brief, earned. */
+  #cheer {
+    position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 54px);
+    left: 50%; transform: translateX(-50%) scale(.8); z-index: 16; pointer-events: none;
+    background: linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
+    color: var(--yellow-ink); padding: 11px 20px; border-radius: 999px;
+    font-size: 15px; font-weight: 900; white-space: nowrap; max-width: 92vw;
+    box-shadow: 0 6px 18px rgba(160, 110, 0, .35), inset 0 0 0 2px rgba(255,255,255,.5);
+    opacity: 0;
+  }
+  #cheer.on { animation: cheerpop 4.6s cubic-bezier(.2, 1.4, .4, 1) both; }
+  @keyframes cheerpop {
+    0% { opacity: 0; transform: translateX(-50%) scale(.6) translateY(-12px); }
+    7%, 88% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) scale(.92) translateY(-8px); }
+  }
   #seeker {
     position: fixed; top: 21%; left: 50%; width: 56px; height: 56px;
     margin-left: -28px; z-index: 14; pointer-events: none;
@@ -312,6 +371,14 @@
     transform: rotate(-1deg);
   }
   #brief .card { width: min(520px, 94vw); }
+
+  /* The winner's shelf: the found car turns slowly in its own little scene. */
+  #trophy {
+    display: block; width: 100%; height: 172px; border-radius: 16px;
+    margin: 0 0 14px;
+    background: linear-gradient(180deg, #bfe0f5, #e9f4fb 62%, #cde6b6);
+    box-shadow: inset 0 0 0 2px rgba(20, 26, 34, .08), 0 6px 18px rgba(20, 26, 34, .12);
+  }
 
   /* The scoreboard's moment: the card lands with the confetti and quietly
      glows while it holds the result. */
@@ -429,8 +496,10 @@
 </head>
 <body>
 <canvas id="scene" tabindex="-1"></canvas>
+<div id="vig" aria-hidden="true"></div>
 
 <div id="sr-status" class="sr" role="status" aria-live="polite"></div>
+<div id="cheer" aria-hidden="true"></div>
 
 <div id="boot">
   <div class="sun"></div>
@@ -490,7 +559,7 @@
   <h1>FIVE<br><span class="gold">WHEELS</span></h1>
   <p class="tag">One car has five wheels.<br>Find it. <em><span id="menu-count">49,000</span> to check.</em></p>
 
-  <button class="pill start" data-act="start">
+  <button class="pill start drive" data-act="start">
     <i class="wheelico" aria-hidden="true">
       <svg viewBox="0 0 64 64">
         <circle cx="32" cy="32" r="23" style="fill:none;stroke:#20242a;stroke-width:14"/>
@@ -556,7 +625,7 @@
     <p class="sub">Every car on the planet has four wheels. Exactly one has five.</p>
     <img id="brief-img" alt="A car with four wheels beside the same car with five">
     <div class="stack">
-      <button class="pill" data-act="go" style="text-align:center"><b>Got it — let me look</b></button>
+      <button class="pill drive" data-act="go" style="text-align:center"><b>Got it — let me look</b><i class="road" aria-hidden="true"><i class="zoomcar"></i></i></button>
     </div>
   </div>
 </div>
@@ -583,19 +652,23 @@
   <div class="card">
     <h2>Five wheels. 🛞</h2>
     <p class="sub">You found the one car that shouldn't exist.</p>
+    <canvas id="trophy" aria-label="Your five-wheeled car, turning slowly"></canvas>
     <div class="score">
       <div><b id="win-time">0:00</b><span>Time</span></div>
       <div><b id="win-tries">0</b><span>Cars tried</span></div>
       <div><b id="win-count">49,000</b><span>On the planet</span></div>
     </div>
     <div class="stack">
-      <button class="pill" data-act="copy" id="copy" style="text-align:center">Copy result</button>
-      <button class="pill grey" data-act="random"><b>Another planet</b><span>A random one, just for you</span></button>
-      <button class="mini" data-act="menu">Menu</button>
+      <button class="pill drive" data-act="photo" id="photo" style="text-align:center"><b class="lbl">Save the photo</b><i class="road" aria-hidden="true"><i class="zoomcar"></i></i></button>
+      <button class="pill grey drive" data-act="random"><b>Another planet</b><span>A random one, just for you</span><i class="road" aria-hidden="true"><i class="zoomcar"></i></i></button>
+      <div class="row" style="width:100%">
+        <button class="mini" data-act="copy" id="copy">Copy result</button>
+        <button class="mini" data-act="menu">Menu</button>
+      </div>
     </div>
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=h195443"></script>
+<script type="module" src="./bundle.js?v=h211551"></script>
 </body>
 </html>
