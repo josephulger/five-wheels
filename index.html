@@ -28,7 +28,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h211551">
+<link rel="modulepreload" href="./bundle.js?v=h221608">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -45,6 +45,13 @@
     --ring: inset 0 0 0 2px rgba(255, 255, 255, 0.88);
     --drop: 0 5px 0 rgba(23, 26, 31, 0.26), 0 10px 22px rgba(18, 22, 28, 0.28);
     --drop-sm: 0 3px 0 rgba(23, 26, 31, 0.22), 0 6px 14px rgba(18, 22, 28, 0.22);
+    /* The skeuomorphic material shelf: one paper grain reused everywhere,
+       cardboard tones for cards, ticket paper for the HUD chip. */
+    --grain: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/%3E%3CfeColorMatrix values="0 0 0 0 0.42 0 0 0 0 0.37 0 0 0 0 0.27 0 0 0 0.055 0"/%3E%3C/filter%3E%3Crect width="120" height="120" filter="url(%23n)"/%3E%3C/svg%3E');
+    --card-a: #fbf7ee;
+    --card-b: #f2ebdb;
+    --ticket-a: #fffdf6;
+    --ticket-b: #f4eeda;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -69,20 +76,50 @@
 
   /* ---------- the button system ---------- */
 
+  /* Thick toy plastic: a moulded highlight along the top, shade pooling at the
+     bottom, and a real ledge underneath. Pressing genuinely compresses it —
+     the ledge shortens and the button sits down on its shadow. */
   .pill {
-    display: block; width: min(380px, 86vw); height: 65px; border: 0; border-radius: 22px;
+    display: block; width: min(380px, 86vw); height: 65px; border: 0; border-radius: 24px;
     padding: 0 22px; text-align: left; cursor: pointer; color: var(--yellow-ink);
-    background: linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
-    box-shadow: var(--ring), var(--drop);
-    font: inherit; transition: transform .12s ease, box-shadow .12s ease;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 34%, rgba(255, 255, 255, 0) 52%),
+      linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, .75),
+      inset 0 -4px 8px rgba(150, 96, 0, .34),
+      0 6px 0 #a87708,
+      0 12px 22px rgba(18, 22, 28, .30);
+    font: inherit; transition: transform .1s ease, box-shadow .1s ease;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
   }
   .pill.grey {
-    color: #fff; background: linear-gradient(180deg, var(--asphalt-a), var(--asphalt-b));
+    color: #fff;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .30), rgba(255, 255, 255, .06) 34%, rgba(255, 255, 255, 0) 52%),
+      linear-gradient(180deg, var(--asphalt-a), var(--asphalt-b));
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, .35),
+      inset 0 -4px 8px rgba(0, 0, 0, .38),
+      0 6px 0 #21252c,
+      0 12px 22px rgba(18, 22, 28, .30);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .45);
   }
-  .pill:hover { transform: translateY(-2px) scale(1.015); }
+  .pill:hover { transform: translateY(-1px); }
   .pill:active {
-    transform: translateY(3px);
-    box-shadow: var(--ring), 0 2px 0 rgba(23, 26, 31, 0.26), 0 4px 10px rgba(18, 22, 28, 0.25);
+    transform: translateY(5px);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, .5),
+      inset 0 -2px 5px rgba(150, 96, 0, .38),
+      0 1px 0 #a87708,
+      0 4px 8px rgba(18, 22, 28, .25);
+  }
+  .pill.grey:active {
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, .25),
+      inset 0 -2px 5px rgba(0, 0, 0, .4),
+      0 1px 0 #21252c,
+      0 4px 8px rgba(18, 22, 28, .25);
   }
   .pill b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
   .pill span { display: block; font-size: 12.5px; font-weight: 700; opacity: .72; margin-top: 2px; }
@@ -123,34 +160,69 @@
 
   .mini {
     min-width: 120px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82); color: var(--ink); cursor: pointer;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 55%),
+      linear-gradient(180deg, #fdfdfc, #e8eaee);
+    color: var(--ink); cursor: pointer;
     font: 800 14px/1 ui-sans-serif, system-ui, sans-serif;
-    box-shadow: var(--ring), var(--drop-sm);
-    transition: transform .12s ease;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .95),
+      inset 0 -3px 6px rgba(90, 100, 115, .18),
+      0 4px 0 #c3c8d0,
+      0 8px 14px rgba(18, 22, 28, .2);
+    transition: transform .1s ease, box-shadow .1s ease;
   }
-  .mini:hover { transform: translateY(-1px) scale(1.03); }
-  .mini:active { transform: translateY(2px); }
+  .mini:hover { transform: translateY(-1px); }
+  .mini:active {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .8),
+      inset 0 -2px 4px rgba(90, 100, 115, .2),
+      0 1px 0 #c3c8d0, 0 3px 6px rgba(18, 22, 28, .18);
+  }
 
   /* The glass pass: the floating controls pick up a blur of the world behind
      them instead of sitting on the screen like stickers. */
   .round {
     width: 46px; height: 46px; border: 0; border-radius: 999px; cursor: pointer;
-    background: rgba(255, 255, 255, 0.74); color: var(--ink);
+    background:
+      radial-gradient(circle at 50% 26%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 55%),
+      rgba(252, 252, 250, 0.82);
+    color: var(--ink);
     backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
     font-size: 19px; line-height: 46px; text-align: center; padding: 0;
-    box-shadow: var(--ring), var(--drop-sm);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .95),
+      inset 0 -3px 6px rgba(90, 100, 115, .2),
+      0 4px 0 #c3c8d0,
+      0 8px 14px rgba(18, 22, 28, .2);
     transition: transform .12s ease;
   }
   .round:hover { transform: translateY(-1px) scale(1.05); }
   .round:active { transform: translateY(2px); }
   .round.off { opacity: .62; }
 
+  /* The clock is a parking ticket: stamped paper, a punched hole on the left,
+     a torn perforation on the right, sitting a hair off-straight. */
   .chip {
-    height: 46px; padding: 0 18px; border-radius: 999px; display: inline-flex;
-    align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.74);
-    backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
-    color: var(--ink); font: 800 15px/1 ui-sans-serif, system-ui, sans-serif;
-    box-shadow: var(--ring), var(--drop-sm);
+    height: 50px; padding: 14px 20px 0 30px; border-radius: 6px 12px 12px 6px;
+    display: inline-flex; align-items: center; gap: 8px; position: relative;
+    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
+    color: #33301f; font: 800 15px/1 ui-sans-serif, system-ui, sans-serif;
+    box-shadow:
+      inset 0 0 0 1.5px rgba(122, 110, 70, .28),
+      0 3px 0 #d4ccb2, 0 7px 14px rgba(18, 22, 28, .22);
+    transform: rotate(-1deg);
+  }
+  .chip::before {
+    content: ""; position: absolute; left: 11px; top: 50%; margin-top: -4.5px;
+    width: 9px; height: 9px; border-radius: 999px;
+    background: radial-gradient(circle at 40% 35%, #8e8563, #6c6448);
+    box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, .45), 0 1px 0 rgba(255, 255, 255, .7);
+  }
+  .chip::after {
+    content: "PARKING TICKET"; position: absolute; top: 6px; left: 30px;
+    font-size: 7.5px; letter-spacing: .22em; font-weight: 800; color: #8d8258;
   }
 
   button:focus-visible {
@@ -243,11 +315,15 @@
   }
   .row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 4px; }
   #streak {
-    margin: 8px 0 0; font-size: 13px; font-weight: 800; color: #17242d;
-    background: rgba(255, 255, 255, .78); padding: 4px 12px; border-radius: 999px;
+    margin: 8px 0 0; font-size: 13px; font-weight: 800; color: #33301f;
+    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
+    padding: 5px 14px; border-radius: 8px; transform: rotate(.6deg);
+    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .25), 0 2px 0 #d4ccb2, 0 4px 8px rgba(18, 22, 28, .16);
   }
   #menu p.tag {
-    background: rgba(255, 255, 255, .72); padding: 6px 14px; border-radius: 14px;
+    background: var(--grain), linear-gradient(180deg, #fefdfa, #f1ede1);
+    padding: 8px 16px; border-radius: 10px; transform: rotate(-.5deg);
+    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .2), 0 3px 0 #d9d0ba, 0 6px 12px rgba(18, 22, 28, .18);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -304,10 +380,14 @@
   #cheer {
     position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 54px);
     left: 50%; transform: translateX(-50%) scale(.8); z-index: 16; pointer-events: none;
-    background: linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 50%),
+      linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
     color: var(--yellow-ink); padding: 11px 20px; border-radius: 999px;
     font-size: 15px; font-weight: 900; white-space: nowrap; max-width: 92vw;
-    box-shadow: 0 6px 18px rgba(160, 110, 0, .35), inset 0 0 0 2px rgba(255,255,255,.5);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .7), inset 0 -3px 6px rgba(150, 96, 0, .3),
+      0 4px 0 #a87708, 0 9px 18px rgba(160, 110, 0, .35);
     opacity: 0;
   }
   #cheer.on { animation: cheerpop 4.6s cubic-bezier(.2, 1.4, .4, 1) both; }
@@ -343,20 +423,53 @@
   }
   @keyframes veilin { from { opacity: 0; } }
   .veil > .card { margin: auto; }
+  /* Cards are toy-box cardboard: warm paper over a visible edge of board,
+     grain everywhere, and an enamel signplate for a title — screws included. */
   .card {
-    width: min(430px, 92vw); background: var(--paper); border-radius: 26px;
+    width: min(430px, 92vw); border-radius: 22px;
+    background: var(--grain), linear-gradient(180deg, var(--card-a), var(--card-b));
     padding: 26px 24px 22px; text-align: center;
-    box-shadow: 0 24px 60px rgba(10, 16, 24, .42), inset 0 0 0 2px rgba(255,255,255,.9);
+    box-shadow:
+      0 6px 0 #d9d0ba,
+      0 26px 60px rgba(10, 16, 24, .42),
+      inset 0 0 0 2px rgba(255, 255, 255, .7),
+      inset 0 0 30px rgba(120, 100, 60, .09);
     animation: pop .34s cubic-bezier(.2,1.3,.4,1) both;
   }
   @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(12px); } }
-  .card h2 { margin: 0 0 4px; font-size: 27px; font-weight: 900; letter-spacing: -0.02em; }
+  .card h2 {
+    position: relative; width: fit-content; margin: -4px auto 10px;
+    padding: 9px 34px; font-size: 23px; font-weight: 900; letter-spacing: -0.01em;
+    color: #fff; transform: rotate(-.6deg);
+    background: linear-gradient(180deg, #4e5866, #333a45);
+    border-radius: 12px;
+    box-shadow:
+      inset 0 0 0 2.5px rgba(255, 255, 255, .85),
+      inset 0 0 0 5px #2b313a,
+      inset 0 14px 14px -8px rgba(255, 255, 255, .22),
+      0 3px 0 #21252c, 0 7px 12px rgba(0, 0, 0, .28);
+    text-shadow: 0 1.5px 0 rgba(0, 0, 0, .45);
+  }
+  .card h2::before, .card h2::after {
+    content: ""; position: absolute; top: 50%; margin-top: -4px;
+    width: 8px; height: 8px; border-radius: 999px;
+    background:
+      linear-gradient(35deg, transparent 44%, rgba(40, 45, 52, .9) 45%, rgba(40, 45, 52, .9) 55%, transparent 56%),
+      radial-gradient(circle at 38% 32%, #f2f4f7, #97a0ab);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(60, 66, 76, .5);
+  }
+  .card h2::before { left: 11px; }
+  .card h2::after { right: 11px; }
   .card .sub { margin: 0 0 18px; font-size: 13.5px; font-weight: 700; opacity: .62; }
   .score {
     display: flex; gap: 10px; margin: 0 0 18px;
   }
+  /* Ticket stubs, torn off along the dashed line. */
   .score div {
-    flex: 1; background: #f1f3f5; border-radius: 16px; padding: 12px 6px;
+    flex: 1; border-radius: 4px 4px 12px 12px; padding: 12px 6px;
+    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
+    border-top: 2px dashed rgba(122, 110, 70, .4);
+    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .2), 0 2px 0 #d9d0ba;
   }
   .score b { display: block; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; }
   .score span { display: block; font-size: 11px; font-weight: 700; opacity: .55; margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
@@ -467,7 +580,7 @@
   #boot-note { position: relative; font-size: 14px; font-weight: 800; color: #1e3a4c; }
 
   @media (max-width: 560px) {
-    .chip { font-size: 14px; padding: 0 15px; }
+    .chip { font-size: 14px; padding: 14px 14px 0 26px; }
   }
 
   /* Where the thumb landed, so walking on a phone is not guesswork. */
@@ -669,6 +782,6 @@
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=h211551"></script>
+<script type="module" src="./bundle.js?v=h221608"></script>
 </body>
 </html>
