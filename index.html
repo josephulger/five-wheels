@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RPQ0C13H9G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  // Dev makinesi istatistige karismasin: localhost'ta config calismaz,
+  // olaylar kuyrukta kalir ve GA'ya gitmez.
+  if (!['localhost', '127.0.0.1', ''].includes(location.hostname)) {
+    gtag('js', new Date());
+    gtag('config', 'G-RPQ0C13H9G');
+  }
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="only light">
@@ -28,7 +40,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h221608">
+<link rel="modulepreload" href="./bundle.js?v=h235057">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -782,6 +794,6 @@
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=h221608"></script>
+<script type="module" src="./bundle.js?v=h235057"></script>
 </body>
 </html>
