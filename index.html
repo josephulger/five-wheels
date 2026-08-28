@@ -40,7 +40,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h193622">
+<link rel="modulepreload" href="./bundle.js?v=h215625">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -730,17 +730,19 @@
 <div class="veil" id="help" role="dialog" aria-modal="true" aria-label="How to play" hidden>
   <div class="card">
     <h2>How to play</h2>
-    <p class="sub">There is no hint system. That is the game.</p>
+    <p class="sub">One car has five wheels. Everything else is detail.</p>
     <ol>
-      <li>Walk with <span>WASD</span>; hold <span>Shift</span> to run. On a phone, drag the left side like a joystick.</li>
-      <li>Hold the mouse button and <span>drag</span> to swing the camera — the car under your cursor lights up.</li>
-      <li>Press <span>Space</span> to drop down among the cars, where wheels can actually be counted.</li>
-      <li>Click a car, or press <span>Enter</span>, and you pick it up for a look. <span>Click again</span> for the verdict right away — the wrong ones get tossed over your shoulder, and that costs nothing but time. <span>Q</span> puts a car back.</li>
-      <li>Stuck? You get <span>one</span> hint — and it's a gamble. The <span>💡</span> button (or <span>H</span>) draws one of three clues at random: the <span>direction</span> for ten seconds, the <span>body type</span>, or the <span>paint colour</span>. Free, but the share text tells on you.</li>
-      <li>No do-overs: refreshing the page brings back the same planet, the same clock and your spent hint. A fresh planet comes when you find the car.</li>
+      <li><span>WASD</span> walks, <span>Shift</span> runs. On a phone, drag the left side.</li>
+      <li><span>Drag</span> to look. <span>Space</span> drops you down among the cars.</li>
+      <li><span>Click</span> a car to grab it, click again for the verdict. <span>Q</span> puts it back.</li>
+      <li>One <span>💡</span> hint per round — a random clue: direction, body type or colour.</li>
+      <li>Refreshing changes nothing. Same planet, same clock.</li>
     </ol>
     <div class="stack">
-      <button class="mini" data-act="help">Got it</button>
+      <div class="row" style="width:100%">
+        <button class="mini" data-act="mouseflip" id="mouseflip">Mouse: FPS look</button>
+        <button class="mini" data-act="help">Got it</button>
+      </div>
     </div>
   </div>
 </div>
@@ -775,6 +777,6 @@ if (new URLSearchParams(location.search).has('konsol')) {
   document.head.appendChild(s);
 }
 </script>
-<script type="module" src="./bundle.js?v=h193622"></script>
+<script type="module" src="./bundle.js?v=h215625"></script>
 </body>
 </html>
