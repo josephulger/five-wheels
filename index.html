@@ -40,7 +40,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h104106">
+<link rel="modulepreload" href="./bundle.js?v=h113936">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -524,57 +524,13 @@
      while the real ones are unpacked. */
   #boot {
     position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 10px; overflow: hidden;
+    align-items: center; justify-content: flex-end; gap: 8px; overflow: hidden;
+    padding-bottom: max(5vh, env(safe-area-inset-bottom, 0px));
     background: linear-gradient(180deg, #64a3dc 0%, #a9d2ee 48%, #dceef8 74%);
   }
-  #boot .sun {
-    position: absolute; top: 7%; left: 9%; width: 92px; height: 92px; border-radius: 999px;
-    background: radial-gradient(circle, #fffdf2 0%, #ffe9a8 42%, rgba(255, 233, 168, 0) 72%);
+  #bootart, #bootart img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
   }
-  #boot .cloud {
-    position: absolute; height: 26px; border-radius: 999px; background: rgba(255,255,255,.92);
-  }
-  #boot .cloud::before {
-    content: ""; position: absolute; left: 22%; top: -13px; width: 44%; height: 26px;
-    border-radius: 999px; background: inherit;
-  }
-  #boot .c1 { width: 130px; top: 15%; left: 22%; animation: cloudby 26s linear infinite; }
-  #boot .c2 { width: 88px; top: 24%; right: 13%; animation: cloudby 34s linear infinite reverse; }
-  #boot .c3 { width: 64px; top: 9%; right: 34%; opacity: .8; animation: cloudby 40s linear infinite; }
-  @keyframes cloudby { 50% { transform: translateX(46px); } }
-  #boot .hill {
-    position: absolute; left: 50%; bottom: -132vh; width: 210vw; height: 160vh;
-    transform: translateX(-50%); border-radius: 50%;
-    background: linear-gradient(180deg, #78b558, #6fac4f 30%);
-    box-shadow: 0 -10px 40px rgba(60, 110, 45, .25);
-  }
-  /* Toy skyline parked on the planet's crest. */
-  #boot .lot {
-    position: absolute; bottom: calc(28vh + 6px); left: 0; right: 0;
-    display: flex; justify-content: center; align-items: flex-end; gap: 34px;
-  }
-  .bcar { position: relative; width: 46px; height: 15px; border-radius: 4px 7px 2px 2px; background: var(--c, #e5443d); }
-  .bcar::before {
-    content: ""; position: absolute; top: -8px; left: 9px; width: 22px; height: 9px;
-    border-radius: 4px 5px 0 0; background: inherit;
-  }
-  .bcar::after {
-    content: ""; position: absolute; bottom: -4px; left: 6px; width: 9px; height: 9px;
-    border-radius: 999px; background: #1a1d21; box-shadow: 24px 0 0 #1a1d21;
-  }
-  /* The one every player is here for: a fifth wheel riding on the roof. */
-  .bcar.five::after { box-shadow: 24px 0 0 #1a1d21, 11px -17px 0 #1a1d21; }
-  .bpine { position: relative; width: 0; height: 0; margin-bottom: -2px;
-    border-left: 14px solid transparent; border-right: 14px solid transparent;
-    border-bottom: 38px solid #2e8a55;
-  }
-  #boot .logo {
-    position: relative; font-size: 52px; font-weight: 900; letter-spacing: -0.03em;
-    line-height: .88; text-align: center; color: #fff; transform: rotate(-1.5deg);
-    -webkit-text-stroke: 4px rgba(20, 28, 38, .55); paint-order: stroke fill;
-    text-shadow: 0 4px 0 rgba(24, 33, 44, .3), 0 12px 24px rgba(20, 28, 38, .4);
-  }
-  #boot .logo span { display: block; color: var(--yellow-a); -webkit-text-stroke: 4px rgba(58, 42, 2, .5); }
   /* A tyre rolling back and forth over a dashed line while the planet loads. */
   #boot .rollzone { position: relative; width: 260px; height: 74px; margin-top: 6px; }
   #boot .rollroad {
@@ -589,7 +545,11 @@
   #boot .rollwheel svg { width: 100%; height: 100%; animation: turn 1.3s linear infinite; }
   @keyframes turn { to { transform: rotate(360deg); } }
   @keyframes roll { from { transform: translateX(-92px); } to { transform: translateX(92px); } }
-  #boot-note { position: relative; font-size: 14px; font-weight: 800; color: #1e3a4c; }
+  #boot-note {
+    position: relative; font-size: 14px; font-weight: 800; color: #1e3a4c;
+    background: rgba(255, 255, 255, .82); padding: 6px 16px; border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(20, 40, 60, .18);
+  }
 
   @media (max-width: 560px) {
     .chip { font-size: 14px; padding: 14px 14px 0 26px; }
@@ -627,21 +587,10 @@
 <div id="cheer" aria-hidden="true"></div>
 
 <div id="boot">
-  <div class="sun"></div>
-  <div class="cloud c1"></div>
-  <div class="cloud c2"></div>
-  <div class="cloud c3"></div>
-  <div class="hill"></div>
-  <div class="lot">
-    <i class="bpine"></i>
-    <i class="bcar" style="--c:#2d63b8"></i>
-    <i class="bcar" style="--c:#e5443d"></i>
-    <i class="bcar five" style="--c:#efc019"></i>
-    <i class="bcar" style="--c:#2f8a52"></i>
-    <i class="bcar" style="--c:#e0761f"></i>
-    <i class="bpine"></i>
-  </div>
-  <div class="logo">FIVE <span>WHEELS</span></div>
+  <picture id="bootart" aria-hidden="true">
+    <source media="(orientation: portrait)" srcset="./assets/boot-dikey.jpg">
+    <img src="./assets/boot-yatay.jpg" alt="" fetchpriority="high" decoding="async">
+  </picture>
   <div class="rollzone">
     <div class="rollwheel">
       <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -795,6 +744,6 @@
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=h104106"></script>
+<script type="module" src="./bundle.js?v=h113936"></script>
 </body>
 </html>
