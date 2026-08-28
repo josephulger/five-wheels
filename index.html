@@ -40,7 +40,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h140130">
+<link rel="modulepreload" href="./bundle.js?v=h141038">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -736,7 +736,7 @@
       <li>Hold the mouse button and <span>drag</span> to swing the camera — the car under your cursor lights up.</li>
       <li>Press <span>Space</span> to drop down among the cars, where wheels can actually be counted.</li>
       <li>Click a car, or press <span>Enter</span>, and you pick it up for a look. <span>Click again</span> for the verdict right away — the wrong ones get tossed over your shoulder, and that costs nothing but time. <span>Q</span> puts a car back.</li>
-      <li>Stuck? You get <span>one</span> hint: the <span>💡</span> button (or <span>H</span>) shows an arrow pointing toward the car for ten seconds. Free, but the share text tells on you.</li>
+      <li>Stuck? You get <span>one</span> hint — and it's a gamble. The <span>💡</span> button (or <span>H</span>) draws one of three clues at random: the <span>direction</span> for ten seconds, the <span>body type</span>, or the <span>paint colour</span>. Free, but the share text tells on you.</li>
       <li>No do-overs: refreshing the page brings back the same planet, the same clock and your spent hint. A fresh planet comes when you find the car.</li>
     </ol>
     <div class="stack">
@@ -775,6 +775,6 @@ if (new URLSearchParams(location.search).has('konsol')) {
   document.head.appendChild(s);
 }
 </script>
-<script type="module" src="./bundle.js?v=h140130"></script>
+<script type="module" src="./bundle.js?v=h141038"></script>
 </body>
 </html>
