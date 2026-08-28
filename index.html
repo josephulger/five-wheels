@@ -40,7 +40,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js?v=h120333">
+<link rel="modulepreload" href="./bundle.js?v=h121521">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -287,9 +287,12 @@
   #menu h1 {
     margin: 2px 0 0; font-size: clamp(52px, 13vw, 92px); font-weight: 900;
     line-height: .84; letter-spacing: -0.035em; color: #fff;
-    -webkit-text-stroke: 5px rgba(20, 28, 38, .62);
-    paint-order: stroke fill;
-    text-shadow: 0 5px 0 rgba(24, 33, 44, .34), 0 14px 28px rgba(20, 28, 38, .5);
+    /* Outline as a shadow ring, not -webkit-text-stroke: iOS has no paint-order
+       for HTML text, so a stroke there paints over the fill and hollows it. */
+    text-shadow:
+      2.5px 0 0 #232f3d, -2.5px 0 0 #232f3d, 0 2.5px 0 #232f3d, 0 -2.5px 0 #232f3d,
+      1.8px 1.8px 0 #232f3d, -1.8px 1.8px 0 #232f3d, 1.8px -1.8px 0 #232f3d, -1.8px -1.8px 0 #232f3d,
+      0 5px 0 rgba(24, 33, 44, .34), 0 14px 28px rgba(20, 28, 38, .5);
     transform: rotate(-1.5deg);
     animation: titlepop .65s cubic-bezier(.34, 1.5, .64, 1) .12s backwards;
   }
@@ -297,13 +300,21 @@
     from { opacity: 0; transform: rotate(-1.5deg) scale(.74) translateY(20px); }
   }
   #menu h1 .gold {
-    color: var(--yellow-a);
-    -webkit-text-stroke: 5px rgba(58, 42, 2, .55);
+    position: relative; display: inline-block;
     background: linear-gradient(105deg,
       var(--yellow-a) 40%, #fff3c4 50%, var(--yellow-a) 60%);
     background-size: 260% 100%; background-position: 130% 0;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: gleam 5s ease-in-out 1.4s infinite;
+  }
+  /* The outline lives on a copy underneath: Safari paints text-shadow in front
+     of background-clipped text, so the gradient layer itself must stay clean. */
+  #menu h1 .gold::before {
+    content: "WHEELS"; position: absolute; inset: 0; z-index: -1; color: #4a3808;
+    text-shadow:
+      2.5px 0 0 #4a3808, -2.5px 0 0 #4a3808, 0 2.5px 0 #4a3808, 0 -2.5px 0 #4a3808,
+      1.8px 1.8px 0 #4a3808, -1.8px 1.8px 0 #4a3808, 1.8px -1.8px 0 #4a3808, -1.8px -1.8px 0 #4a3808,
+      0 5px 0 rgba(58, 42, 2, .30), 0 14px 28px rgba(20, 28, 38, .45);
   }
   @keyframes gleam {
     0%, 52% { background-position: 130% 0; }
@@ -755,6 +766,15 @@
   </div>
 </div>
 
-<script type="module" src="./bundle.js?v=h120333"></script>
+<script>
+// Gecici teshis kancasi: ?konsol ile acilirsa telefonda konsol paneli gelir.
+if (new URLSearchParams(location.search).has('konsol')) {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+  s.onload = () => window.eruda && window.eruda.init();
+  document.head.appendChild(s);
+}
+</script>
+<script type="module" src="./bundle.js?v=h121521"></script>
 </body>
 </html>
