@@ -45,7 +45,7 @@
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/sedan.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/hatchback-sports.glb" crossorigin>
 <link rel="preload" as="fetch" type="model/gltf-binary" href="assets/models/suv.glb" crossorigin>
-<link rel="modulepreload" href="./bundle.js">
+<link rel="modulepreload" href="./bundle.js?v=h114551">
 <style>
   :root {
     /* This page is its own art direction. Chrome's forced dark mode was
@@ -69,6 +69,86 @@
     --card-b: #f2ebdb;
     --ticket-a: #fffdf6;
     --ticket-b: #f4eeda;
+
+    /* ---- weathered steel plate ----------------------------------------
+       The whole UI used to be paper and moulded plastic, tuned against a blue
+       sky. The world went orange and every pale surface stopped reading. This
+       is the replacement material: cut steel that has been outdoors for years.
+
+       The one detail that decides whether it looks like metal or like plastic
+       is the TOP EDGE. Plastic gets a bright white highlight; weathered steel
+       gets a dull WARM sheen, because there is no gloss left to throw a
+       specular and everything out here is lit through orange dust. */
+    --plate-a: #6d5b49;
+    --plate-b: #52412f;
+    --plate-c: #33271c;
+    --plate-ledge: #221a12;
+    --plate-sheen: rgba(255, 228, 186, .20);
+    --plate-under: rgba(0, 0, 0, .52);
+    --plate-cut: rgba(18, 12, 7, .55);
+    --stencil: #eddfc0;
+    --stencil-dim: rgba(237, 223, 192, .62);
+
+    /* Paint over steel: machinery blue, and the plate underneath is RUST.
+       The paint is a separate layer with holes eaten in it, not a colour — so
+       what shows through a chip is the actual corroded plate, which is the
+       only way flaking reads as flaking instead of as a texture. */
+    /* US highway sign blue, MUTCD standard #003F87 (Pantone 294) — then left
+       outdoors. The top face catches the yard's orange dust light so it lifts
+       a shade warmer; the bottom is in its own shadow and goes near navy. */
+    --paint-a: #14508f;
+    --paint-b: #063f7d;
+    --paint-c: #032b56;
+    --paint-ledge: #011a33;
+    --paint-ink: #f0e4c8;
+
+    /* Under-plate: what a chip exposes. Rustier and darker than a bare plate,
+       because paint traps water against the steel. */
+    --under-a: #7a4622;
+    --under-b: #5a3117;
+    --under-c: #3a1f0f;
+
+    /* The chip mask. Turbulence pushed through a steep alpha ramp: mostly
+       opaque, with a scatter of hard-edged holes. Hard edges matter — paint
+       does not fade out, it lets go. */
+    --chip: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="420" height="110"%3E%3Cfilter id="c"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.024 0.05" numOctaves="4" seed="17"/%3E%3CfeColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 11 0 0 0 -3.15"/%3E%3C/filter%3E%3Crect width="420" height="110" filter="url(%23c)"/%3E%3C/svg%3E');
+
+    /* Rust never blooms evenly. Two off-centre patches, different sizes, so
+       the plate has a wet corner and a dry one. */
+    --rust-bloom:
+      radial-gradient(78% 120% at 13% 4%, rgba(163, 74, 24, .62), rgba(163, 74, 24, .18) 42%, transparent 68%),
+      radial-gradient(56% 90% at 92% 96%, rgba(126, 50, 16, .58), transparent 62%),
+      radial-gradient(34% 60% at 68% 12%, rgba(150, 66, 20, .30), transparent 70%);
+    /* Brushed scuffing, almost subliminal — felt, not seen. */
+    /* Ilk deneme 1px acik + 1px koyu bant kullaniyordu ve ortaya kadife
+       cizgisi cikti. Firca izi tek yonlu, seyrek ve neredeyse gorunmez olmali. */
+    /* Iki deneme de dik cizgi verdi ve kadife okundu. Haddelenmis levhanin
+       dokusu levha BOYUNCA uzanir; 97 derece neredeyse dikti, 5 derece
+       neredeyse yatay. Boyali yuzeyde ayrica daha da soluk olmali: boya
+       cizigi doldurur. */
+    --scuff: repeating-linear-gradient(5deg,
+      rgba(255, 242, 218, .026) 0 1px, transparent 1px 7px,
+      rgba(0, 0, 0, .024) 7px 8px, transparent 8px 19px);
+    --scuff-paint: repeating-linear-gradient(4deg,
+      rgba(255, 246, 226, .016) 0 1px, transparent 1px 11px);
+    /* One rivet. Placed four times by background-position. */
+    --rivet: radial-gradient(circle,
+      rgba(255, 233, 197, .5) 0 1.1px, rgba(96, 72, 46, .9) 1.7px,
+      rgba(20, 14, 8, .7) 2.4px, rgba(0, 0, 0, 0) 3.1px);
+  }
+
+  /* Four rivets in the corners plus the weathering stack. Any plate wide
+     enough to carry them uses this; small controls skip it so they stay crisp
+     (see the taste rule: reduce texture as the control shrinks). */
+  .riv {
+    background-image:
+      var(--rivet), var(--rivet), var(--rivet), var(--rivet),
+      var(--scuff), var(--grain), var(--rust-bloom);
+    background-position:
+      10px 9px, calc(100% - 10px) 9px, 10px calc(100% - 9px), calc(100% - 10px) calc(100% - 9px),
+      0 0, 0 0, 0 0;
+    background-size: 7px 7px, 7px 7px, 7px 7px, 7px 7px, auto, 120px 120px, cover;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -96,71 +176,148 @@
   /* Thick toy plastic: a moulded highlight along the top, shade pooling at the
      bottom, and a real ledge underneath. Pressing genuinely compresses it —
      the ledge shortens and the button sits down on its shadow. */
+  /* The primary: a plate somebody painted machinery yellow a long time ago.
+     Corners are cut square-ish, not pill-round — steel does not mould. */
+  /* Two layers, in this order:
+       the ELEMENT is the corroded plate,
+       ::before is the blue paint, with holes eaten through it.
+     Painting rust-coloured freckles onto blue would have been half the code
+     and would have looked like a pattern. This way a chip is a real hole and
+     what you see through it is a real rusted surface. */
   .pill {
-    display: block; width: min(380px, 86vw); height: 65px; border: 0; border-radius: 24px;
-    padding: 0 22px; text-align: left; cursor: pointer; color: var(--yellow-ink);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .12) 34%, rgba(255, 255, 255, 0) 52%),
-      linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
+    position: relative; isolation: isolate;
+    display: block; width: min(380px, 86vw); height: 66px; border: 0; border-radius: 7px;
+    padding: 0 22px; text-align: left; cursor: pointer; color: var(--paint-ink);
+    background-color: var(--under-b);
+    background-image:
+      var(--scuff), var(--grain),
+      radial-gradient(72% 110% at 12% 6%, rgba(196, 96, 30, .55), transparent 62%),
+      radial-gradient(60% 96% at 90% 94%, rgba(150, 62, 18, .5), transparent 64%),
+      linear-gradient(180deg, var(--under-a), var(--under-b) 48%, var(--under-c));
+    background-size: auto, 120px 120px, cover, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat;
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, .75),
-      inset 0 -4px 8px rgba(150, 96, 0, .34),
-      0 6px 0 #a87708,
-      0 12px 22px rgba(18, 22, 28, .30);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 rgba(255, 214, 160, .30),
+      inset 0 -3px 7px rgba(0, 0, 0, .45),
+      0 6px 0 var(--paint-ledge),
+      0 13px 22px rgba(14, 10, 6, .45);
     font: inherit; transition: transform .1s ease, box-shadow .1s ease;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
   }
+  /* The paint. Inset by 2px so the cut edge of the plate is always bare — that
+     is where paint goes first, and it is what stops the button reading as a
+     blue rectangle with speckles on it. */
+  .pill::before {
+    content: ""; position: absolute; inset: 2px; z-index: 0; border-radius: 5px;
+    pointer-events: none;
+    background-color: var(--paint-b);
+    background-image:
+      var(--rivet), var(--rivet), var(--rivet), var(--rivet),
+      var(--scuff-paint), var(--grain),
+      radial-gradient(46% 80% at 8% 98%, rgba(126, 55, 17, .62), transparent 58%),
+      radial-gradient(38% 70% at 88% 100%, rgba(112, 48, 14, .5), transparent 62%),
+      linear-gradient(180deg, var(--paint-a), var(--paint-b) 46%, var(--paint-c));
+    background-position:
+      9px 8px, calc(100% - 9px) 8px, 9px calc(100% - 8px), calc(100% - 9px) calc(100% - 8px),
+      0 0, 0 0, 0 0, 0 0;
+    background-size: 7px 7px, 7px 7px, 7px 7px, 7px 7px, auto, 120px 120px, cover, cover, cover;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
+    -webkit-mask-image: var(--chip); mask-image: var(--chip);
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+    box-shadow: inset 0 1.5px 0 rgba(178, 214, 244, .40), inset 0 -2px 7px rgba(0, 0, 0, .42);
+  }
+  /* Everything the player reads sits above the paint. */
+  .pill b, .pill span { position: relative; z-index: 2; }
+  .pill .road, .pill .wheelico { z-index: 3; }
   /* The second choice must not be the first choice in another colour. It
      drops the moulded plastic, the ledge, the road and the little car, and
      becomes an outlined bar — a different SHAPE of control, not a repaint.
      Two identical buttons stacked read as one decision offered twice. */
+  /* The second choice must not be the first choice in another colour. It is a
+     BARE plate: no paint, no hazard tape, no ledge — it sits flat where the
+     primary stands proud.
+
+     It was briefly a transparent outline, which is a shape that only works on
+     one background. The win panel is still cream and the button vanished into
+     it. A plate carries its own contrast and reads anywhere, which is the
+     whole reason to give a control a material instead of a border. */
   .pill.ghost {
-    height: 52px; border-radius: 18px;
+    height: 52px; border-radius: 5px;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    background: rgba(32, 40, 50, .05);
-    color: #3a4552;
-    box-shadow: inset 0 0 0 2.5px rgba(58, 69, 82, .26);
-    text-shadow: none;
+    color: var(--stencil);
+    background-color: var(--plate-b);
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #5f4e3e, #493a2c 48%, #2f2519);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 6px var(--plate-under),
+      0 2px 0 var(--plate-ledge),
+      0 6px 12px rgba(14, 10, 6, .32);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
   }
   .pill.ghost b { display: inline; font-size: 16px; font-weight: 800; }
-  .pill.ghost span { display: inline; font-size: 12.5px; font-weight: 700; opacity: .58; margin: 0; }
+  .pill.ghost span { display: inline; font-size: 12.5px; font-weight: 700; opacity: .62; margin: 0;
+                     color: var(--stencil-dim); }
   .pill.ghost:hover {
-    transform: none;
-    background: rgba(32, 40, 50, .10);
-    box-shadow: inset 0 0 0 2.5px rgba(58, 69, 82, .40);
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut), inset 0 1.5px 0 rgba(255, 232, 190, .3),
+      inset 0 -2px 6px var(--plate-under),
+      0 3px 0 var(--plate-ledge), 0 8px 15px rgba(14, 10, 6, .36);
   }
   .pill.ghost:active {
-    transform: translateY(1px);
-    box-shadow: inset 0 0 0 2.5px rgba(58, 69, 82, .52);
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 3px 7px rgba(0, 0, 0, .55), inset 0 -1px 0 var(--plate-sheen),
+      0 0 0 var(--plate-ledge), 0 3px 6px rgba(14, 10, 6, .28);
   }
 
+  .pill.grey::before, .pill.ghost::before { display: none; }
+  /* Bare plate: the same cut of steel, never painted. */
   .pill.grey {
-    color: #fff;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .30), rgba(255, 255, 255, .06) 34%, rgba(255, 255, 255, 0) 52%),
-      linear-gradient(180deg, var(--asphalt-a), var(--asphalt-b));
+    color: var(--stencil);
+    background-color: var(--plate-b);
+    background-image:
+      var(--rivet), var(--rivet), var(--rivet), var(--rivet),
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, var(--plate-a), var(--plate-b) 46%, var(--plate-c));
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, .35),
-      inset 0 -4px 8px rgba(0, 0, 0, .38),
-      0 6px 0 #21252c,
-      0 12px 22px rgba(18, 22, 28, .30);
-    text-shadow: 0 1px 1px rgba(0, 0, 0, .45);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -3px 7px var(--plate-under),
+      0 6px 0 var(--plate-ledge),
+      0 13px 22px rgba(14, 10, 6, .45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
   }
   .pill:hover { transform: translateY(-1px); }
+  /* Pressed reverses the depth: the plate drops onto its ledge and the light
+     that was on the top edge moves inside as a carved shadow. */
   .pill:active {
     transform: translateY(5px);
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, .5),
-      inset 0 -2px 5px rgba(150, 96, 0, .38),
-      0 1px 0 #a87708,
-      0 4px 8px rgba(18, 22, 28, .25);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 3px 8px rgba(0, 0, 0, .55),
+      inset 0 -1px 0 rgba(255, 214, 160, .26),
+      0 1px 0 var(--paint-ledge),
+      0 4px 8px rgba(14, 10, 6, .3);
+  }
+  .pill:active::before {
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, .5), inset 0 -1px 0 rgba(190, 224, 246, .22);
   }
   .pill.grey:active {
     box-shadow:
-      inset 0 2px 0 rgba(255, 255, 255, .25),
-      inset 0 -2px 5px rgba(0, 0, 0, .4),
-      0 1px 0 #21252c,
-      0 4px 8px rgba(18, 22, 28, .25);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 3px 8px rgba(0, 0, 0, .6),
+      inset 0 -1px 0 var(--plate-sheen),
+      0 1px 0 var(--plate-ledge),
+      0 4px 8px rgba(14, 10, 6, .3);
   }
   .pill b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
   .pill span { display: block; font-size: 12.5px; font-weight: 700; opacity: .72; margin-top: 2px; }
@@ -169,28 +326,33 @@
      bottom, its dashes actually flow, and a toy car crosses it with its
      wheels spinning. */
   .pill.drive { position: relative; overflow: hidden; padding-bottom: 14px; }
+  /* This strip used to be a length of ROAD with a little red car driving along
+     it, and it survived the rename, the scrapyard rebuild and the steel pass
+     untouched — the last piece of the car-park game still on screen. A yard
+     has no road markings. It has hazard tape on every edge somebody might
+     walk into, worn down to the metal in the middle where they did. */
   .pill.drive .road {
     position: absolute; left: 0; right: 0; bottom: 0; height: 13px;
-    background: #363c46; font-style: normal;
+    font-style: normal; overflow: hidden;
+    background-color: #1d1a15;
+    background-image:
+      var(--grain),
+      repeating-linear-gradient(114deg,
+        #c9971d 0 11px, #17140f 11px 22px);
+    background-size: 120px 120px, 44px 100%;
+    animation: hazard 6.5s linear infinite;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(0, 0, 0, .6);
   }
+  /* Wear: the paint on the tape is gone in the middle, rust underneath. */
   .pill.drive .road::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 2.5px;
-    background: repeating-linear-gradient(90deg, #f4f6f8 0 11px, transparent 11px 24px);
-    opacity: .8; animation: dashflow 1.7s linear infinite;
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, .34), transparent 45%, rgba(0, 0, 0, .40)),
+      radial-gradient(58% 200% at 46% 50%, rgba(110, 52, 18, .78), transparent 70%);
   }
-  .pill.drive:hover .road::before { animation-duration: .45s; }
-  @keyframes dashflow { to { background-position: -24px 0; } }
-  .pill.grey .road { background: #23272e; }
-  .pill.grey .road::before {
-    background: repeating-linear-gradient(90deg, var(--yellow-a) 0 11px, transparent 11px 24px);
-  }
-  .pill.drive .zoomcar {
-    position: absolute; bottom: 1px; left: -46px; width: 38px; height: 18px;
-    font-style: normal;
-    background: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 22"%3E%3Cstyle%3E.w{animation:s .5s linear infinite;transform-origin:center;transform-box:fill-box}@keyframes s{to{transform:rotate(1turn)}}%3C/style%3E%3Cpath d="M3 14Q3 9 8 9L13 9Q15 4 21 4L27 4Q32 4 34 9L39 9Q43 9 43 14L43 16Q43 17 42 17L4 17Q3 17 3 16Z" fill="%23e5443d"/%3E%3Cpath d="M16 9Q17 5.5 21 5.5L26 5.5Q29.5 5.5 31.5 9Z" fill="%23d6ecf9"/%3E%3Cg class="w"%3E%3Ccircle cx="12" cy="16" r="4.2" fill="%2322262c"/%3E%3Ccircle cx="12" cy="16" r="1.7" fill="%23e9edf2"/%3E%3Crect x="11.55" y="12.2" width=".9" height="7.6" fill="%23e9edf2"/%3E%3C/g%3E%3Cg class="w"%3E%3Ccircle cx="33" cy="16" r="4.2" fill="%2322262c"/%3E%3Ccircle cx="33" cy="16" r="1.7" fill="%23e9edf2"/%3E%3Crect x="32.55" y="12.2" width=".9" height="7.6" fill="%23e9edf2"/%3E%3C/g%3E%3C/svg%3E') no-repeat center / contain;
-    animation: drive 5.2s linear infinite;
-  }
-  .pill.drive:hover .zoomcar { animation-duration: 1.6s; }
+  .pill.drive:hover .road { animation-duration: 1.9s; }
+  @keyframes hazard { to { background-position: 0 0, -44px 0; } }
+  .pill.grey .road { background-color: #17140f; }
   .pill.start { height: 76px; padding: 6px 22px 17px 76px; }
   .pill.start .wheelico {
     position: absolute; left: 15px; top: 8px; width: 46px; height: 46px;
@@ -199,18 +361,29 @@
   .pill.start:hover .wheelico svg { animation-duration: 1.1s; }
   @keyframes drive { to { transform: translateX(560px); } }
 
+  /* A small bolted tag. Too small for corner rivets on all four corners, so
+     it gets two down the left edge like a riveted strap. */
+  /* Rivets came off both of the small controls. At 44px a pair of studs down
+     one edge does not read as hardware, it reads as a colon. The skill's own
+     rule: reduce texture as the control shrinks. */
   .mini {
-    min-width: 120px; height: 44px; padding: 0 20px; border: 0; border-radius: 999px;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0) 55%),
-      linear-gradient(180deg, #fdfdfc, #e8eaee);
-    color: var(--ink); cursor: pointer;
+    min-width: 122px; height: 44px; padding: 0 20px; border: 0; border-radius: 5px;
+    background-color: var(--plate-b);
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, var(--plate-a), var(--plate-b) 48%, var(--plate-c));
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    color: var(--stencil); cursor: pointer;
     font: 800 14px/1 ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: .02em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .55);
     box-shadow:
-      inset 0 1.5px 0 rgba(255, 255, 255, .95),
-      inset 0 -3px 6px rgba(90, 100, 115, .18),
-      0 4px 0 #c3c8d0,
-      0 8px 14px rgba(18, 22, 28, .2);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 4px 0 var(--plate-ledge),
+      0 9px 15px rgba(14, 10, 6, .38);
     transition: transform .1s ease, box-shadow .1s ease;
   }
   .mini:hover { transform: translateY(-1px); }
@@ -224,20 +397,38 @@
 
   /* The glass pass: the floating controls pick up a blur of the world behind
      them instead of sitting on the screen like stickers. */
+  /* A turned steel knob, not a glass bubble. The backdrop blur is gone: it
+     was the reason these vanished against a bright sky — a frosted disc over
+     orange IS orange. The sheen sits high and warm; the body darkens toward
+     the rim so the disc reads as domed. */
   .round {
     width: 46px; height: 46px; border: 0; border-radius: 999px; cursor: pointer;
-    background:
-      radial-gradient(circle at 50% 26%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 55%),
-      rgba(252, 252, 250, 0.82);
-    color: var(--ink);
-    backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+    background-color: var(--plate-b);
+    background-image:
+      var(--scuff), var(--grain),
+      radial-gradient(circle at 50% 20%, rgba(255, 232, 190, .30), rgba(255, 232, 190, 0) 52%),
+      radial-gradient(circle at 52% 92%, rgba(150, 66, 22, .34), transparent 58%),
+      radial-gradient(circle at 50% 34%, var(--plate-a) 0%, var(--plate-b) 52%, var(--plate-c) 100%);
+    background-size: auto, 120px 120px, cover, cover, cover;
+    color: var(--stencil);
     font-size: 19px; line-height: 46px; text-align: center; padding: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
     box-shadow:
-      inset 0 1.5px 0 rgba(255, 255, 255, .95),
-      inset 0 -3px 6px rgba(90, 100, 115, .2),
-      0 4px 0 #c3c8d0,
-      0 8px 14px rgba(18, 22, 28, .2);
-    transition: transform .12s ease;
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -3px 6px var(--plate-under),
+      0 4px 0 var(--plate-ledge),
+      0 9px 15px rgba(14, 10, 6, .42);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .round:active {
+    transform: translateY(3px);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 3px 7px rgba(0, 0, 0, .6),
+      inset 0 -1px 0 var(--plate-sheen),
+      0 1px 0 var(--plate-ledge),
+      0 3px 6px rgba(14, 10, 6, .3);
   }
   .round:hover { transform: translateY(-1px) scale(1.05); }
   .round:active { transform: translateY(2px); }
@@ -245,25 +436,39 @@
 
   /* The clock is a parking ticket: stamped paper, a punched hole on the left,
      a torn perforation on the right, sitting a hair off-straight. */
+  /* The clock is a gauge screwed to the top of the screen: bare plate, one
+     bolt through the left end, and the reading itself recessed and lit amber
+     like an instrument. It was a paper ticket, which was invisible against a
+     bright sky and belonged to a game about a car park. */
   .chip {
-    height: 50px; padding: 14px 20px 0 30px; border-radius: 6px 12px 12px 6px;
+    height: 50px; padding: 15px 20px 0 32px; border-radius: 5px;
     display: inline-flex; align-items: center; gap: 8px; position: relative;
-    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
-    color: #33301f; font: 800 15px/1 ui-sans-serif, system-ui, sans-serif;
+    background-color: var(--plate-b);
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, var(--plate-a), var(--plate-b) 48%, var(--plate-c));
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    color: #f4d98a; font: 900 15px/1 ui-sans-serif, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
     box-shadow:
-      inset 0 0 0 1.5px rgba(122, 110, 70, .28),
-      0 3px 0 #d4ccb2, 0 7px 14px rgba(18, 22, 28, .22);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 6px var(--plate-under),
+      0 4px 0 var(--plate-ledge), 0 9px 16px rgba(6, 4, 2, .42);
     transform: rotate(-1deg);
   }
   .chip::before {
-    content: ""; position: absolute; left: 11px; top: 50%; margin-top: -4.5px;
-    width: 9px; height: 9px; border-radius: 999px;
-    background: radial-gradient(circle at 40% 35%, #8e8563, #6c6448);
-    box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, .45), 0 1px 0 rgba(255, 255, 255, .7);
+    content: ""; position: absolute; left: 12px; top: 50%; margin-top: -4px;
+    width: 8px; height: 8px; border-radius: 999px;
+    background: radial-gradient(circle at 38% 32%, #a9926e, #4a3a28);
+    box-shadow: inset 0 1px 1.5px rgba(0, 0, 0, .6), 0 1px 0 rgba(255, 228, 186, .22);
   }
   .chip::after {
-    content: "STILL LOOKING"; position: absolute; top: 6px; left: 30px;
-    font-size: 7.5px; letter-spacing: .22em; font-weight: 800; color: #8d8258;
+    content: "STILL LOOKING"; position: absolute; top: 7px; left: 32px;
+    font-size: 7.5px; letter-spacing: .22em; font-weight: 800;
+    color: rgba(237, 223, 192, .5); text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
   }
 
   /* The hint button kicks when it is spent: a badge ticking 3 → 2 under a
@@ -295,8 +500,8 @@
     overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;
     animation: rise .5s ease both;
   }
-  #menu > :first-child { margin-top: auto; }
-  #menu > :last-child { margin-bottom: auto; }
+  #menu > #wheelmark { margin-top: auto; }
+  #menu > #streak { margin-bottom: auto; }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
   /* Entrance choreography: the wheel rolls in, the title lands with a pop,
      everything below follows a beat later. Backwards-fill keeps children
@@ -335,12 +540,16 @@
   }
   #menu h1 {
     margin: 2px 0 0; font-size: clamp(52px, 13vw, 92px); font-weight: 900;
-    line-height: .84; letter-spacing: -0.035em; color: #fff;
+    /* Dusted bone, not white, and the outline went from a cold navy to a dark
+       rust. The rule this pass follows: ONLY THE SHINE STAYS CLEAN. The gold
+       word and the sparkle are the promise of the game, so they keep their
+       gloss; everything around them has been outdoors as long as the cars. */
+    line-height: .84; letter-spacing: -0.035em; color: #ece1cd;
     /* Outline as a shadow ring, not -webkit-text-stroke: iOS has no paint-order
        for HTML text, so a stroke there paints over the fill and hollows it. */
     text-shadow:
-      2.5px 0 0 #232f3d, -2.5px 0 0 #232f3d, 0 2.5px 0 #232f3d, 0 -2.5px 0 #232f3d,
-      1.8px 1.8px 0 #232f3d, -1.8px 1.8px 0 #232f3d, 1.8px -1.8px 0 #232f3d, -1.8px -1.8px 0 #232f3d,
+      2.5px 0 0 #2b2015, -2.5px 0 0 #2b2015, 0 2.5px 0 #2b2015, 0 -2.5px 0 #2b2015,
+      1.8px 1.8px 0 #2b2015, -1.8px 1.8px 0 #2b2015, 1.8px -1.8px 0 #2b2015, -1.8px -1.8px 0 #2b2015,
       0 5px 0 rgba(24, 33, 44, .34), 0 14px 28px rgba(20, 28, 38, .5);
     transform: rotate(-1.5deg);
     animation: titlepop .65s cubic-bezier(.34, 1.5, .64, 1) .12s backwards;
@@ -411,30 +620,150 @@
   }
   #menu p.tag {
     margin: 12px 0 6px; max-width: 26ch; font-size: 15.5px; font-weight: 700;
-    color: #24333f;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+    color: var(--stencil);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
   }
   #menu p.tag em {
-    font-style: normal; color: #4a3a04; background: rgba(249, 201, 43, .92);
-    padding: 1px 7px; border-radius: 7px;
+    /* Bir kagit cikartma degil: levhanin uzerine sablonla vurulmus boya.
+       Kenarlar keskin, boya biraz asinmis, altinda levhanin golgesi var. */
+    font-style: normal; color: #2e2103;
+    background: linear-gradient(180deg, rgba(240, 196, 46, .96), rgba(206, 156, 20, .96));
+    padding: 2px 9px; border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(70, 48, 4, .32), 0 1px 0 rgba(0, 0, 0, .35);
+    text-shadow: 0 1px 0 rgba(255, 232, 160, .35);
   }
+  /* ---------- baska oyunum ---------- */
+
+  /* Menude bu bir POP-UP degil. Acilmiyor, kapanmiyor, hicbir sey istemiyor —
+     kosede duran bir not. Menunun tek isi Start'a bastirmak; oradaki her
+     hareketli kutu kendi butonuyla yarisir. */
+  #crosslink {
+    position: fixed; z-index: 21;
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 12px 7px 8px; border-radius: 11px;
+    text-decoration: none; color: var(--stencil);
+    background-color: var(--plate-b);
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, var(--plate-a), var(--plate-b) 48%, var(--plate-c));
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut), inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 3px 0 var(--plate-ledge), 0 8px 13px rgba(14, 10, 6, .38);
+    transform: rotate(.7deg);
+    transition: transform .13s ease, box-shadow .13s ease;
+    opacity: .93;
+  }
+  #crosslink:hover, #crosslink:focus-visible {
+    opacity: 1; transform: rotate(.7deg) translateY(-2px);
+    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .3), 0 4px 0 #d9d0ba, 0 9px 16px rgba(18, 22, 28, .22);
+  }
+  #crosslink img { width: 30px; height: 30px; border-radius: 8px; display: block; }
+  #crosslink span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+  #crosslink i { font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .07em;
+                 text-transform: uppercase; color: rgba(237, 223, 192, .58); }
+  #crosslink b { font-size: 13px; font-weight: 900; letter-spacing: .02em;
+                 text-shadow: 0 1px 2px rgba(0, 0, 0, .6); }
+  /* Telefonda kucuk kalsin ama "Also by me" DURSUN — o satir olmayinca rozet
+     bu oyunun kendi etiketi gibi okunuyor. */
+  @media (max-width: 480px) {
+    #crosslink { gap: 7px; padding: 5px 9px 5px 6px; }
+    #crosslink img { width: 24px; height: 24px; border-radius: 7px; }
+    #crosslink i { font-size: 8px; }
+    #crosslink b { font-size: 11px; }
+  }
+
+  /* Kazanma ekraninda ayni sey daha buyuk durabilir: oyun bitti, adam memnun,
+     "bir tane daha ister misin" cumlesinin isledigi tek an burasi. */
+  #alsoplay {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    margin-top: 4px; padding: 11px 14px; border-radius: 5px;
+    text-decoration: none; color: var(--stencil); text-align: left;
+    background-color: #241c13;
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #3f3225, #2f2519 58%, #241c13);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    box-shadow:
+      inset 0 0 0 1px rgba(10, 7, 4, .7),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 6px rgba(0, 0, 0, .5),
+      0 3px 0 #150f09, 0 8px 14px rgba(6, 4, 2, .42);
+    transition: transform .13s ease, box-shadow .13s ease;
+  }
+  #alsoplay:hover, #alsoplay:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .3), 0 5px 0 #d9d0ba, 0 10px 18px rgba(18, 22, 28, .22);
+  }
+  #alsoplay img { width: 46px; height: 46px; border-radius: 11px; display: block; flex: none; }
+  #alsoplay .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  #alsoplay .kicker { font-size: 9.5px; font-weight: 800; letter-spacing: .07em;
+                      text-transform: uppercase; color: rgba(237, 223, 192, .55); }
+  #alsoplay .name { font-size: 15px; font-weight: 900; letter-spacing: .02em; margin-top: 1px; white-space: nowrap; }
+  #alsoplay .blurb { font-size: 12px; font-weight: 600; color: var(--stencil-dim); margin-top: 2px; }
+  #alsoplay .go { flex: none; font-size: 11px; font-weight: 900; letter-spacing: .04em;
+                  text-transform: uppercase; color: #4a3a04;
+                  background: rgba(249, 201, 43, .92); padding: 5px 10px; border-radius: 8px; }
+  #alsoplay .gomob { display: none; }
+  /* Dar ekranda rozet + aciklama + isim ayni satira sigmiyor, isim iki satira
+     kiriliyordu. Karti zaten link oldugu icin rozet sus: telefonda dusuyor,
+     yerine tek satirlik "Google Play" yazisi geciyor. */
+  @media (max-width: 480px) {
+    #alsoplay .blurb, #alsoplay .go { display: none; }
+    #alsoplay .gomob { display: block; font-size: 12px; font-weight: 800; color: #7a6410; margin-top: 2px; }
+  }
+
   .row { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 4px; }
+  /* A stamped strip, punched at both ends where it was wired on. */
   #streak {
-    margin: 8px 0 0; font-size: 13px; font-weight: 800; color: #33301f;
-    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
-    padding: 5px 14px; border-radius: 8px; transform: rotate(.6deg);
-    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .25), 0 2px 0 #d4ccb2, 0 4px 8px rgba(18, 22, 28, .16);
+    margin: 8px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .015em;
+    color: var(--stencil-dim);
+    background-color: var(--plate-c);
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #4c3b2c, #3a2c20 52%, #2a2016);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    padding: 7px 22px; border-radius: 4px; transform: rotate(.7deg);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 3px 0 #1c150e,
+      0 7px 12px rgba(14, 10, 6, .36);
   }
+  /* The yard's data plate: bolted on, stencilled, slightly off square because
+     whoever fitted it did not care. */
   #menu p.tag {
-    background: var(--grain), linear-gradient(180deg, #fefdfa, #f1ede1);
-    padding: 8px 16px; border-radius: 10px; transform: rotate(-.5deg);
-    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .2), 0 3px 0 #d9d0ba, 0 6px 12px rgba(18, 22, 28, .18);
+    background-color: var(--plate-b);
+    background-image:
+      var(--rivet), var(--rivet), var(--rivet), var(--rivet),
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, var(--plate-a), var(--plate-b) 48%, var(--plate-c));
+    background-position:
+      9px 8px, calc(100% - 9px) 8px, 9px calc(100% - 8px), calc(100% - 9px) calc(100% - 8px),
+      0 0, 0 0, 0 0, 0 0;
+    background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px, auto, 120px 120px, cover, cover;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
+    padding: 11px 22px; border-radius: 5px; transform: rotate(-.7deg);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -2px 6px var(--plate-under),
+      0 4px 0 var(--plate-ledge),
+      0 10px 18px rgba(14, 10, 6, .4);
   }
 
   @media (prefers-reduced-motion: reduce) {
     #menu, #menu > *, #menu h1, .card, .veil, #wheelmark, #win .card, #boot .rollwheel,
     #boot .rollwheel svg, #boot .bootbar i, #wheelmark svg, .pill.start .wheelico svg,
-    .pill.drive .zoomcar, .pill.drive .road::before { animation: none !important; }
+    .pill.drive .road { animation: none !important; }
     .pill, .mini, .round { transition: none !important; }
     .bl { transition: none !important; }
   }
@@ -462,11 +791,18 @@
     display: flex; flex-direction: column; gap: 10px; align-items: center;
   }
   #lamp { position: relative; }
+  /* A stamped counter let into the knob. The ring is what makes it read at
+     20px against a rusted disc — a flat yellow dot just looked like a fleck of
+     paint. */
   #lamp i {
-    position: absolute; top: -5px; right: -5px; width: 20px; height: 20px;
-    border-radius: 999px; background: var(--yellow-a); color: var(--yellow-ink);
-    font-style: normal; font-weight: 800; font-size: 12px; line-height: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.35);
+    position: absolute; top: -5px; right: -5px; width: 21px; height: 21px;
+    border-radius: 999px; color: #2e2103;
+    background: linear-gradient(180deg, #f0c42e, #c99a14);
+    font-style: normal; font-weight: 900; font-size: 12px; line-height: 21px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 240, 190, .7),
+      inset 0 -1px 2px rgba(90, 60, 4, .45),
+      0 0 0 2px #241a11, 0 2px 4px rgba(0, 0, 0, .5);
   }
   #lamp.spent { opacity: .4; }
 
@@ -475,8 +811,19 @@
   #hintnote {
     position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 54px);
     left: 50%; transform: translateX(-50%); z-index: 16; pointer-events: none;
-    background: rgba(16, 22, 30, .82); color: #fff; padding: 10px 16px;
-    border-radius: 999px; font-size: 14px; font-weight: 800; white-space: nowrap;
+    background-color: #2a2016;
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #46372a, #33281c 54%, #241c13);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    color: #f4d98a; padding: 10px 20px; border-radius: 4px;
+    font-size: 14px; font-weight: 800; white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut), inset 0 1px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 3px 0 var(--plate-ledge), 0 8px 15px rgba(6, 4, 2, .45);
     opacity: 0; transition: opacity .35s ease; max-width: 92vw;
   }
   #hintnote.on { opacity: 1; }
@@ -485,14 +832,25 @@
   #cheer {
     position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 54px);
     left: 50%; transform: translateX(-50%) scale(.8); z-index: 16; pointer-events: none;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 50%),
-      linear-gradient(180deg, var(--yellow-a), var(--yellow-b));
-    color: var(--yellow-ink); padding: 11px 20px; border-radius: 999px;
+    /* The yard noticing you. It was a glossy sweet-yellow capsule, the last
+       piece of moulded plastic in the game — and it pops up over a rusted
+       world, so it read as a notification from another app. Now it is a plate
+       with the message stencilled on in machinery amber. */
+    background-color: #2f2519;
+    background-image:
+      var(--rivet), var(--rivet),
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #55432f, #3d2f20 52%, #2a2016);
+    background-position: 10px 50%, calc(100% - 10px) 50%, 0 0, 0 0, 0 0, 0 0;
+    background-size: 7px 7px, 7px 7px, auto, 120px 120px, cover, cover;
+    background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
+    color: #f4d98a; padding: 11px 28px; border-radius: 5px;
     font-size: 15px; font-weight: 900; white-space: nowrap; max-width: 92vw;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
     box-shadow:
-      inset 0 1.5px 0 rgba(255, 255, 255, .7), inset 0 -3px 6px rgba(150, 96, 0, .3),
-      0 4px 0 #a87708, 0 9px 18px rgba(160, 110, 0, .35);
+      inset 0 0 0 1px var(--plate-cut), inset 0 1.5px 0 var(--plate-sheen),
+      inset 0 -3px 7px var(--plate-under),
+      0 4px 0 var(--plate-ledge), 0 11px 20px rgba(6, 4, 2, .48);
     opacity: 0;
   }
   #cheer.on { animation: cheerpop 4.6s cubic-bezier(.2, 1.4, .4, 1) both; }
@@ -506,12 +864,24 @@
     margin-left: -28px; z-index: 14; pointer-events: none;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,.35));
   }
+  /* The controls line had no surface at all — bare white text over sand, the
+     worst-read thing on the screen. It gets a strip, but a thin one: it fades
+     out after nine seconds and must not compete with the search. */
   .bl {
     position: fixed; bottom: max(16px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left));
-    max-width: 46vw; font-size: 12px; font-weight: 700; color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,.55); line-height: 1.5;
-    transition: opacity .8s ease; opacity: .9; pointer-events: none;
+    max-width: 48vw; font-size: 12px; font-weight: 700; line-height: 1.55;
+    color: var(--stencil); text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+    padding: 8px 14px; border-radius: 4px;
+    background-color: rgba(30, 23, 15, .82);
+    background-image: var(--scuff), var(--grain);
+    background-size: auto, 120px 120px;
+    box-shadow:
+      inset 0 0 0 1px rgba(10, 7, 4, .6),
+      inset 0 1px 0 rgba(255, 228, 186, .14),
+      0 3px 8px rgba(6, 4, 2, .38);
+    transition: opacity .8s ease; opacity: .95; pointer-events: none;
   }
+  .bl b { color: #f0d99a; }
   .bl.gone { opacity: 0; }
   #eye { width: 56px; height: 56px; font-size: 23px; line-height: 56px; }
 
@@ -528,32 +898,54 @@
   }
   @keyframes veilin { from { opacity: 0; } }
   .veil > .card { margin: auto; }
-  /* Cards are toy-box cardboard: warm paper over a visible edge of board,
-     grain everywhere, and an enamel signplate for a title — screws included. */
+  /* Cards were toy-box cardboard, which stopped making sense the moment every
+     control became cut steel. A panel is now a big plate bolted up on the
+     inside of the yard office: rivets at the corners, rust down from them
+     because that is where the water tracks, and an enamel sign screwed on for
+     a title. */
   .card {
-    width: min(430px, 92vw); border-radius: 22px;
-    background: var(--grain), linear-gradient(180deg, var(--card-a), var(--card-b));
+    width: min(430px, 92vw); border-radius: 8px;
+    color: var(--stencil);
+    background-color: var(--plate-b);
+    background-image:
+      var(--rivet), var(--rivet), var(--rivet), var(--rivet),
+      var(--scuff), var(--grain),
+      radial-gradient(52% 34% at 14% 3%, rgba(168, 78, 26, .46), transparent 62%),
+      radial-gradient(44% 30% at 88% 97%, rgba(134, 56, 18, .44), transparent 64%),
+      linear-gradient(180deg, #63523f, #4b3b2c 46%, #2e2418);
+    background-position:
+      14px 13px, calc(100% - 14px) 13px, 14px calc(100% - 13px), calc(100% - 14px) calc(100% - 13px),
+      0 0, 0 0, 0 0, 0 0, 0 0;
+    background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, auto, 120px 120px, cover, cover, cover;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
     padding: 26px 24px 22px; text-align: center;
     box-shadow:
-      0 6px 0 #d9d0ba,
-      0 26px 60px rgba(10, 16, 24, .42),
-      inset 0 0 0 2px rgba(255, 255, 255, .7),
-      inset 0 0 30px rgba(120, 100, 60, .09);
+      inset 0 0 0 1px var(--plate-cut),
+      inset 0 2px 0 var(--plate-sheen),
+      inset 0 -3px 9px var(--plate-under),
+      0 7px 0 var(--plate-ledge),
+      0 30px 60px rgba(6, 4, 2, .55);
     animation: pop .34s cubic-bezier(.2,1.3,.4,1) both;
   }
   @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(12px); } }
   .card h2 {
     position: relative; width: fit-content; margin: -4px auto 10px;
     padding: 9px 34px; font-size: 23px; font-weight: 900; letter-spacing: -0.01em;
+    /* A real enamel sign, screwed on: highway blue with a white keyline, the
+       same blue as the primary button so the two read as one fleet. */
     color: #fff; transform: rotate(-.6deg);
-    background: linear-gradient(180deg, #4e5866, #333a45);
-    border-radius: 12px;
+    background:
+      var(--grain),
+      radial-gradient(60% 90% at 10% 100%, rgba(120, 52, 16, .34), transparent 62%),
+      linear-gradient(180deg, var(--paint-a), var(--paint-b) 52%, var(--paint-c));
+    background-size: 120px 120px, cover, cover;
+    border-radius: 5px;
     box-shadow:
-      inset 0 0 0 2.5px rgba(255, 255, 255, .85),
-      inset 0 0 0 5px #2b313a,
-      inset 0 14px 14px -8px rgba(255, 255, 255, .22),
-      0 3px 0 #21252c, 0 7px 12px rgba(0, 0, 0, .28);
-    text-shadow: 0 1.5px 0 rgba(0, 0, 0, .45);
+      inset 0 0 0 2px rgba(240, 246, 252, .88),
+      inset 0 0 0 4px rgba(3, 34, 66, .9),
+      inset 0 12px 14px -9px rgba(190, 224, 246, .3),
+      0 3px 0 var(--paint-ledge), 0 8px 13px rgba(0, 0, 0, .4);
+    text-shadow: 0 1.5px 2px rgba(0, 0, 0, .55);
   }
   .card h2::before, .card h2::after {
     content: ""; position: absolute; top: 50%; margin-top: -4px;
@@ -565,35 +957,67 @@
   }
   .card h2::before { left: 11px; }
   .card h2::after { right: 11px; }
-  .card .sub { margin: 0 0 18px; font-size: 13.5px; font-weight: 700; opacity: .62; }
+  .card .sub { margin: 0 0 18px; font-size: 13.5px; font-weight: 700;
+               color: var(--stencil-dim); text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
   .score {
     display: flex; gap: 10px; margin: 0 0 18px;
   }
-  /* Ticket stubs, torn off along the dashed line. */
+  /* Punched tags, the kind wired onto a part so the yard knows what it is.
+     Recessed into the panel rather than raised: these are readings, not
+     controls, and nothing you cannot press should stand proud. */
   .score div {
-    flex: 1; border-radius: 4px 4px 12px 12px; padding: 12px 6px;
-    background: var(--grain), linear-gradient(180deg, var(--ticket-a), var(--ticket-b));
-    border-top: 2px dashed rgba(122, 110, 70, .4);
-    box-shadow: inset 0 0 0 1.5px rgba(122, 110, 70, .2), 0 2px 0 #d9d0ba;
+    flex: 1; border-radius: 4px; padding: 12px 6px;
+    background-color: #241c13;
+    background-image:
+      var(--scuff), var(--grain),
+      linear-gradient(180deg, #241c13, #2e2418 60%, #382c1d);
+    background-size: auto, 120px 120px, cover;
+    box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, .68),
+      inset 0 -1px 0 var(--plate-sheen),
+      inset 0 0 0 1px rgba(10, 7, 4, .7);
   }
-  .score b { display: block; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums; }
-  .score span { display: block; font-size: 11px; font-weight: 700; opacity: .55; margin-top: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .score b {
+    display: block; font-size: 26px; font-weight: 900; font-variant-numeric: tabular-nums;
+    color: #f4d98a; text-shadow: 0 1px 3px rgba(0, 0, 0, .7);
+  }
+  .score span {
+    display: block; font-size: 11px; font-weight: 700; margin-top: 2px;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: rgba(237, 223, 192, .5);
+  }
   .card .pill { width: min(380px, 100%); }
   .card .stack { display: flex; flex-direction: column; gap: 9px; align-items: center; }
   .card ol { margin: 0 0 18px; padding-left: 20px; text-align: left; font-weight: 700; font-size: 14px; line-height: 1.75; }
-  .card ol span { font-weight: 800; background: #f6e2a0; padding: 0 5px; border-radius: 5px; }
+  .card ol { color: var(--stencil); }
+  /* Stencilled onto the plate, same treatment as the menu's count. */
+  .card ol span {
+    font-weight: 800; color: #2e2103; padding: 1px 6px; border-radius: 2px;
+    background: linear-gradient(180deg, rgba(240, 196, 46, .96), rgba(206, 156, 20, .96));
+    box-shadow: inset 0 0 0 1px rgba(70, 48, 4, .3);
+  }
+  /* The portrait sits in a bolted frame, sunk into the panel. */
   #brief-img {
-    display: block; width: 100%; height: auto; border-radius: 16px;
+    display: block; width: 100%; height: auto; border-radius: 4px;
     margin: 0 0 18px; background: #eef1f4;
-    box-shadow: inset 0 0 0 2px rgba(20, 26, 34, .08), 0 6px 18px rgba(20, 26, 34, .14);
+    box-shadow:
+      0 0 0 3px #3a2d1f,
+      0 0 0 4px rgba(10, 7, 4, .75),
+      inset 0 0 0 1px rgba(20, 26, 34, .12),
+      0 8px 18px rgba(6, 4, 2, .45);
     transform: rotate(-1deg);
   }
   #brief .card { width: min(520px, 94vw); }
 
   /* The winner's shelf: the found car turns slowly in its own little scene. */
+  /* Same bolted frame as the briefing portrait: a bright window cut into a
+     dark plate needs an edge, or it reads as a hole. */
   #trophy {
-    display: block; width: 100%; height: 172px; border-radius: 16px;
-    margin: 0 0 14px;
+    display: block; width: 100%; height: 172px; border-radius: 4px;
+    box-shadow:
+      0 0 0 3px #3a2d1f, 0 0 0 4px rgba(10, 7, 4, .75),
+      0 8px 18px rgba(6, 4, 2, .45);
+    margin: 0 0 18px;
     /* The shelf used to end in meadow green. The car standing on it came
        out of a scrapyard, and the backdrop is the last thing still
        promising the game this used to be. */
@@ -622,29 +1046,72 @@
     position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
     align-items: center; justify-content: flex-end; gap: 8px; overflow: hidden;
     padding-bottom: max(5vh, env(safe-area-inset-bottom, 0px));
-    background: linear-gradient(180deg, #64a3dc 0%, #a9d2ee 48%, #dceef8 74%);
+    /* The loading screen is the first thing anybody sees and it was still the
+       old game: a clear blue sky. Same stops as the sky dome's visible half —
+       blue overhead, dust at the horizon. */
+    background: linear-gradient(180deg, #3a83c9 0%, #93b3c4 34%, #dda86a 72%, #c2884b 100%);
   }
   #bootart, #bootart img {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
   }
+  /* The wordmark used to be BAKED INTO the loading image, which is why it went
+     stale: the plate still had the old blue sky and the pre-weathering title
+     painted on it, frozen. The picture is now scenery only and the words are
+     real elements, so they can never drift from the rest of the game again. */
+  #boot-mark {
+    position: absolute; left: 0; right: 0; top: 12%;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 0 22px; text-align: center; pointer-events: none;
+  }
+  #boot-mark h1 {
+    margin: 0; font-size: clamp(46px, 11vw, 86px); font-weight: 900;
+    line-height: .84; letter-spacing: -0.035em; color: #ece1cd;
+    text-shadow:
+      2.5px 0 0 #2b2015, -2.5px 0 0 #2b2015, 0 2.5px 0 #2b2015, 0 -2.5px 0 #2b2015,
+      1.8px 1.8px 0 #2b2015, -1.8px 1.8px 0 #2b2015, 1.8px -1.8px 0 #2b2015, -1.8px -1.8px 0 #2b2015,
+      0 5px 0 rgba(24, 16, 8, .34), 0 14px 28px rgba(14, 9, 4, .5);
+    transform: rotate(-1.5deg);
+  }
+  #boot-mark h1 span { color: var(--yellow-a); }
+  #boot-mark p {
+    margin: 0; font-size: 14px; font-weight: 800; letter-spacing: .015em;
+    color: var(--stencil-dim); text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+    background-color: #2f2519;
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #4c3b2c, #3a2c20 52%, #2a2016);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    padding: 7px 20px; border-radius: 4px; transform: rotate(.6deg);
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut), inset 0 1px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 3px 0 #1c150e, 0 7px 12px rgba(6, 4, 2, .4);
+  }
+  @media (max-width: 560px) { #boot-mark { top: 9%; } }
   /* A tyre rolling along the top of the loading bar while the planet loads. */
   #boot .rollzone { position: relative; width: min(340px, 74vw); height: 92px; margin-top: 6px; }
+  /* A channel cut in a plate, not a plastic capsule. */
   #boot .bootbar {
-    position: absolute; bottom: 0; left: 0; right: 0; height: 26px; border-radius: 999px;
-    background: #14263c; border: 3px solid rgba(9, 18, 30, .8);
-    box-shadow: inset 0 3px 7px rgba(0, 0, 0, .5), 0 3px 10px rgba(18, 38, 58, .3);
+    position: absolute; bottom: 0; left: 0; right: 0; height: 26px; border-radius: 4px;
+    background: #1c1509; border: 3px solid #3b2e20;
+    box-shadow:
+      inset 0 3px 8px rgba(0, 0, 0, .72),
+      inset 0 -1px 0 rgba(255, 228, 186, .16),
+      0 3px 0 #150f09, 0 8px 14px rgba(6, 4, 2, .42);
     overflow: hidden;
   }
+  /* Hazard tape running through the channel, same tape as the buttons. */
   #boot .bootbar i {
-    display: block; height: 100%; width: 8%; border-radius: 999px;
-    background-color: #f7c122;
-    background-image: linear-gradient(45deg, rgba(255, 255, 255, .28) 25%, transparent 25% 50%, rgba(255, 255, 255, .28) 50% 75%, transparent 75%);
-    background-size: 28px 28px;
-    box-shadow: inset 0 -4px 0 rgba(150, 100, 5, .35), inset 0 3px 0 rgba(255, 245, 200, .5);
-    animation: barflow .7s linear infinite;
+    display: block; height: 100%; width: 8%; border-radius: 2px;
+    background-color: #17140f;
+    background-image: repeating-linear-gradient(114deg, #c9971d 0 9px, #17140f 9px 18px);
+    background-size: 36px 100%;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .34), inset 0 2px 0 rgba(255, 228, 170, .22);
+    animation: barflow 1.1s linear infinite;
     transition: width .4s ease-out;
   }
-  @keyframes barflow { to { background-position: 28px 0; } }
+  @keyframes barflow { to { background-position: 36px 0; } }
   #boot .rollwheel {
     position: absolute; bottom: 22px; left: 50%; width: 58px; height: 58px; margin-left: -29px;
     animation: roll 2.4s ease-in-out infinite alternate;
@@ -653,9 +1120,19 @@
   @keyframes turn { to { transform: rotate(360deg); } }
   @keyframes roll { from { transform: translateX(-92px); } to { transform: translateX(92px); } }
   #boot-note {
-    position: relative; font-size: 14px; font-weight: 800; color: #1e3a4c;
-    background: rgba(255, 255, 255, .82); padding: 6px 16px; border-radius: 999px;
-    box-shadow: 0 2px 8px rgba(20, 40, 60, .18);
+    position: relative; font-size: 14px; font-weight: 800; letter-spacing: .015em;
+    color: var(--stencil-dim); text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+    background-color: #2f2519;
+    background-image:
+      var(--scuff), var(--grain), var(--rust-bloom),
+      linear-gradient(180deg, #4c3b2c, #3a2c20 52%, #2a2016);
+    background-size: auto, 120px 120px, cover, cover;
+    background-repeat: repeat, repeat, no-repeat, no-repeat;
+    padding: 7px 20px; border-radius: 4px;
+    box-shadow:
+      inset 0 0 0 1px var(--plate-cut), inset 0 1px 0 var(--plate-sheen),
+      inset 0 -2px 5px var(--plate-under),
+      0 3px 0 #1c150e, 0 7px 12px rgba(6, 4, 2, .4);
   }
 
   @media (max-width: 560px) {
@@ -683,15 +1160,16 @@
   #stick {
     position: fixed; z-index: 16; width: 124px; height: 124px; margin: -62px 0 0 -62px;
     border-radius: 999px; pointer-events: none; opacity: 0;
-    background: radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,0) 70%);
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,.42);
+    background: radial-gradient(circle, rgba(255, 228, 186, .10), rgba(255, 228, 186, 0) 70%);
+    box-shadow: inset 0 0 0 2px rgba(237, 223, 192, .34), inset 0 0 0 3px rgba(20, 14, 8, .3);
     transition: opacity .18s ease;
   }
   #stick.on { opacity: 1; }
   #stick i {
     position: absolute; left: 50%; top: 50%; width: 46px; height: 46px;
     margin: -23px 0 0 -23px; border-radius: 999px;
-    background: rgba(255,255,255,.62); box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    background: radial-gradient(circle at 50% 32%, #8a7a5e, #4a3a28);
+    box-shadow: inset 0 1.5px 0 rgba(255, 228, 186, .3), 0 2px 8px rgba(0, 0, 0, .5);
   }
 
   @media (max-height: 640px) {
@@ -715,6 +1193,10 @@
     <source media="(orientation: portrait)" srcset="./assets/boot-dikey.jpg">
     <img src="./assets/boot-yatay.jpg" alt="" fetchpriority="high" decoding="async">
   </picture>
+  <div id="boot-mark" aria-hidden="true">
+    <h1>ONE CAR<br><span>SHINES</span></h1>
+    <p>Every car here is rotting. One isn't.</p>
+  </div>
   <div class="rollzone">
     <div class="rollwheel">
       <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -738,15 +1220,15 @@
 </div>
 
 <div id="menu" hidden>
-  <div id="wheelmark"><svg viewBox="0 0 64 64" aria-hidden="true"><g style="stroke:#232f3d;stroke-width:3.4;stroke-linejoin:round"><path d="M27 6 Q30 24 49 29 Q30 34 27 55 Q24 34 5 29 Q24 24 27 6 Z" style="fill:#ffffff"/><path d="M50 8 Q51.4 15 58 17 Q51.4 19 50 26 Q48.6 19 42 17 Q48.6 15 50 8 Z" style="fill:#f9c92b"/></g></svg></div>
+  <div id="wheelmark"><svg viewBox="0 0 64 64" aria-hidden="true"><g style="stroke:#2b2015;stroke-width:3.4;stroke-linejoin:round"><path d="M27 6 Q30 24 49 29 Q30 34 27 55 Q24 34 5 29 Q24 24 27 6 Z" style="fill:#ffffff"/><path d="M50 8 Q51.4 15 58 17 Q51.4 19 50 26 Q48.6 19 42 17 Q48.6 15 50 8 Z" style="fill:#f9c92b"/></g></svg></div>
   <h1>ONE CAR<br><span class="gold">SHINES</span></h1>
   <p class="tag">Every car here is rotting.<br>One isn't.<br><em><span id="menu-count">49,000</span> to check.</em></p>
 
   <button class="pill start drive" data-act="start">
-    <i class="wheelico" aria-hidden="true"><svg viewBox="0 0 64 64" aria-hidden="true"><g style="stroke:#232f3d;stroke-width:3.4;stroke-linejoin:round"><path d="M27 6 Q30 24 49 29 Q30 34 27 55 Q24 34 5 29 Q24 24 27 6 Z" style="fill:#ffffff"/><path d="M50 8 Q51.4 15 58 17 Q51.4 19 50 26 Q48.6 19 42 17 Q48.6 15 50 8 Z" style="fill:#f9c92b"/></g></svg></i>
+    <i class="wheelico" aria-hidden="true"><svg viewBox="0 0 64 64" aria-hidden="true"><g style="stroke:#2b2015;stroke-width:3.4;stroke-linejoin:round"><path d="M27 6 Q30 24 49 29 Q30 34 27 55 Q24 34 5 29 Q24 24 27 6 Z" style="fill:#ffffff"/><path d="M50 8 Q51.4 15 58 17 Q51.4 19 50 26 Q48.6 19 42 17 Q48.6 15 50 8 Z" style="fill:#f9c92b"/></g></svg></i>
     <b>Start looking</b>
     <span>A fresh planet for every player</span>
-    <i class="road" aria-hidden="true"><i class="zoomcar"></i></i>
+    <i class="road" aria-hidden="true"></i>
   </button>
 
   <div class="row">
@@ -754,6 +1236,11 @@
     <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
   </div>
   <p id="streak">No car found yet. Go and look.</p>
+  <a id="crosslink" href="https://play.google.com/store/apps/details?id=com.voidstride.game"
+     target="_blank" rel="noopener noreferrer">
+    <img src="assets/voidstride.png" alt="">
+    <span><i>Also by me</i><b>Void Stride</b></span>
+  </a>
 </div>
 
 <div id="hud" hidden>
@@ -766,7 +1253,7 @@
     <button class="round" data-act="mute" data-mute aria-label="Sound">🔊</button>
   </div>
   <div class="br">
-    <button class="round" id="lamp" data-act="lamp" aria-label="Use a hint">💡<i id="lamp-n">3</i></button>
+    <button class="round" id="lamp" data-act="lamp" aria-label="Use a hint">💡<i id="lamp-n">1</i></button>
     <button class="round" id="eye" data-act="eye" aria-label="Crouch down and look">👁</button>
   </div>
   <div id="hintnote" role="status"></div>
@@ -796,7 +1283,7 @@
     <p class="sub">Except one. Somebody still washes it. Exactly one car out there is clean, and in a lot where nothing reflects, it is the only thing that catches the light.</p>
     <img id="brief-img" alt="A dust-covered car beside the same car spotless and gleaming">
     <div class="stack">
-      <button class="pill drive" data-act="go" style="text-align:center"><b>Got it — let me look</b><i class="road" aria-hidden="true"><i class="zoomcar"></i></i></button>
+      <button class="pill drive" data-act="go" style="text-align:center"><b>Got it — let me look</b><i class="road" aria-hidden="true"></i></button>
     </div>
   </div>
 </div>
@@ -832,12 +1319,23 @@
       <div><b id="win-count">49,000</b><span>On the planet</span></div>
     </div>
     <div class="stack">
-      <button class="pill drive" data-act="photo" id="photo" style="text-align:center"><b class="lbl">Save the photo</b><i class="road" aria-hidden="true"><i class="zoomcar"></i></i></button>
+      <button class="pill drive" data-act="photo" id="photo" style="text-align:center"><b class="lbl">Save the photo</b><i class="road" aria-hidden="true"></i></button>
       <button class="pill ghost" data-act="random"><b>Another planet</b><span>a random one</span></button>
       <div class="row" style="width:100%">
         <button class="mini" data-act="copy" id="copy">Copy result</button>
         <button class="mini" data-act="menu">Menu</button>
       </div>
+      <a id="alsoplay" href="https://play.google.com/store/apps/details?id=com.voidstride.game"
+         target="_blank" rel="noopener noreferrer">
+        <img src="assets/voidstride.png" alt="">
+        <span class="txt">
+          <span class="kicker">Also by me</span>
+          <span class="name">Void Stride</span>
+          <span class="blurb">Endless runner. Free on Android.</span>
+          <span class="gomob">Google Play ↗</span>
+        </span>
+        <span class="go">Google&nbsp;Play&nbsp;↗</span>
+      </a>
     </div>
   </div>
 </div>
@@ -851,6 +1349,6 @@ if (new URLSearchParams(location.search).has('konsol')) {
   document.head.appendChild(s);
 }
 </script>
-<script type="module" src="./bundle.js"></script>
+<script type="module" src="./bundle.js?v=h114551"></script>
 </body>
 </html>
